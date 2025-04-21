@@ -24,3 +24,8 @@ variable "public_key" {
   type        = string
 }
 
+variable "talos_version" {
+  description = "Talos release version to install, e.g. v1.9.5"
+  type        = string
+}
+

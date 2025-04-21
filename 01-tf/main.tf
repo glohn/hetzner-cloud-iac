@@ -90,3 +90,73 @@ resource "null_resource" "reboot_into_rescue" {
   depends_on = [null_resource.enable_rescue]
 }
 
+resource "null_resource" "wait_for_rescue_ready" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      IP="${hcloud_server.test.ipv4_address}"
+      while ! (nc -z "$IP" 22 && ssh -o StrictHostKeyChecking=no -o ConnectTimeout=2 root@$IP 'uname -a | grep -qi rescue' 2>/dev/null); do
+        sleep 2
+      done
+    EOT
+  }
+
+  depends_on = [null_resource.reboot_into_rescue]
+}
+
+resource "null_resource" "download_talos_iso" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      ssh-keygen -R ${hcloud_server.test.ipv4_address} || true
+      ssh -o StrictHostKeyChecking=no root@${hcloud_server.test.ipv4_address} '
+        set -e
+
+        VERSION="v${var.talos_version}"
+        URL="https://github.com/siderolabs/talos/releases/download/$VERSION/metal-amd64.iso"
+        OUT="/tmp/metal-amd64.iso"
+        TMP="/tmp/metal-amd64.iso.tmp"
+
+        echo "Downloading Talos ISO $VERSION..."
+        curl -L -o "$TMP" "$URL"
+        mv "$TMP" "$OUT"
+        echo "Download complete."
+      '
+    EOT
+  }
+
+  depends_on = [null_resource.wait_for_rescue_ready]
+}
+
+resource "null_resource" "write_iso_to_disk" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      ssh -o StrictHostKeyChecking=no root@${hcloud_server.test.ipv4_address} '
+        set -euo pipefail
+
+        ISO="/tmp/metal-amd64.iso"
+        DEVICE="/dev/sda"
+
+        echo "Writing ISO to disk..."
+        dd if="$ISO" of="$DEVICE" bs=4M status=progress oflag=direct
+
+        sync
+        echo "ISO written successfully."
+      '
+    EOT
+  }
+
+  depends_on = [null_resource.download_talos_iso]
+}
+
+resource "null_resource" "reboot_into_talos" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      ssh -o StrictHostKeyChecking=no root@${hcloud_server.test.ipv4_address} '
+        echo "Rebooting into Talos..."
+        reboot
+      '
+    EOT
+  }
+
+  depends_on = [null_resource.write_iso_to_disk]
+}
+
