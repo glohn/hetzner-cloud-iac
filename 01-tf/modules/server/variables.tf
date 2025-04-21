@@ -1,9 +1,3 @@
-variable "hcloud_token" {
-  description = "Hetzner Cloud API token"
-  type        = string
-  sensitive   = true
-}
-
 variable "servername" {
   description = "Name of the Hetzner server"
   type        = string
@@ -20,12 +14,7 @@ variable "location" {
 }
 
 variable "public_key" {
-  description = "SSH public key"
-  type        = string
-}
-
-variable "talos_version" {
-  description = "Talos version to install (e.g. 1.9.5)"
+  description = "SSH public key to provision"
   type        = string
 }
 
