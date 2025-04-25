@@ -1,11 +1,11 @@
 output "ipv4_address" {
   description = "Public IPv4 address of the created server"
-  value       = hcloud_server.this.ipv4_address
+  value       = hcloud_server.instance.ipv4_address
 }
 
 output "id" {
   description = "ID of the created server"
-  value       = hcloud_server.this.id
+  value       = hcloud_server.instance.id
 }
 
 output "ssh_key_id" {
