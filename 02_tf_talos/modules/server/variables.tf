@@ -1,5 +1,5 @@
-variable "servername" {
-  description = "Name of the Hetzner server"
+variable "projectname" {
+  description = "Name of the project"
   type        = string
 }
 

@@ -1,5 +1,10 @@
-variable "projectname" {
+variable "project" {
   description = "Name of the project"
+  type        = string
+}
+
+variable "location" {
+  description = "Hetzner location, e.g. nbg1"
   type        = string
 }
 

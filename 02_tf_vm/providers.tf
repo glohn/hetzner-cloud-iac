@@ -10,7 +10,7 @@ terraform {
 
   backend "s3" {
     bucket   = "yourname-hetzner-lab-tfstate"
-    key      = "base.tfstate"
+    key      = "vm.tfstate"
     region   = "main"
     endpoint = "https://nbg1.your-objectstorage.com"
 
