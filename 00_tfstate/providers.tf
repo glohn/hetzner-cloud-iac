@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "minio" {
-  minio_server   = var.minio_domain
+  minio_server   = "${var.location}.${var.minio_domain}"
   minio_user     = var.s3_access_key
   minio_password = var.s3_secret_key
   minio_region   = "nbg1"

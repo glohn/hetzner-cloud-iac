@@ -4,7 +4,7 @@ resource "hcloud_ssh_key" "default" {
 }
 
 resource "hcloud_server" "this" {
-  name        = var.servername
+  name        = var.projectname
   server_type = var.server_type
   image       = "debian-12"
   location    = var.location

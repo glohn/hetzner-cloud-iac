@@ -4,18 +4,18 @@ variable "hcloud_token" {
   sensitive   = true
 }
 
-variable "servername" {
-  description = "Name of the Hetzner server"
-  type        = string
-}
-
-variable "server_type" {
-  description = "Hetzner server type to deploy, e.g. cx22"
+variable "project" {
+  description = "Name of the project"
   type        = string
 }
 
 variable "location" {
   description = "Hetzner location, e.g. nbg1"
+  type        = string
+}
+
+variable "server_type" {
+  description = "Hetzner server type to deploy, e.g. cx22"
   type        = string
 }
 
