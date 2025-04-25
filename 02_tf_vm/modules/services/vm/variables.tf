@@ -1,4 +1,4 @@
-variable "projectname" {
+variable "project" {
   description = "Name of the Hetzner server"
   type        = string
 }
@@ -16,5 +16,14 @@ variable "location" {
 variable "public_key" {
   description = "SSH public key to provision"
   type        = string
+}
+
+variable "network_id" {
+}
+
+variable "ip_range" {
+}
+
+variable "network_zone" {
 }
 
