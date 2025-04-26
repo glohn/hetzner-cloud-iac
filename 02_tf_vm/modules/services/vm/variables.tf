@@ -3,13 +3,13 @@ variable "project" {
   type        = string
 }
 
-variable "server_type" {
-  description = "Hetzner server type to deploy, e.g. cx22"
+variable "location" {
+  description = "Hetzner location, e.g. nbg1"
   type        = string
 }
 
-variable "location" {
-  description = "Hetzner location, e.g. nbg1"
+variable "server_type" {
+  description = "Hetzner server type to deploy, e.g. cx22"
   type        = string
 }
 
@@ -19,11 +19,7 @@ variable "public_key" {
 }
 
 variable "network_id" {
-}
-
-variable "ip_range" {
-}
-
-variable "network_zone" {
+  description = "The ID of the private network"
+  type        = string
 }
 

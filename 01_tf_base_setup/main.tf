@@ -1,17 +1,17 @@
 module "vpc" {
   source = "./modules/vpc"
 
-  project    = var.project
-  location   = var.location
+  project    = data.terraform_remote_state.tfstate-tfstate.outputs.project
+  location   = data.terraform_remote_state.tfstate-tfstate.outputs.location
   cidr_block = var.cidr_block
 }
 
 module "loadbalancer" {
   source = "./modules/services/loadbalancer"
 
-  project                = var.project
+  project                = data.terraform_remote_state.tfstate-tfstate.outputs.project
   load_balancer_type     = var.load_balancer_type
-  load_balancer_location = var.location
+  load_balancer_location = data.terraform_remote_state.tfstate-tfstate.outputs.location
   network_id             = module.vpc.network_id
   subnet_ip_range        = module.vpc.subnet_ip_ranges
 }

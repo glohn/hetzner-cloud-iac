@@ -8,3 +8,8 @@ output "subnet_id" {
   value       = module.vpc.subnet_ids
 }
 
+output "subnet_ip_ranges" {
+  description = "The IP ranges of the private subnets"
+  value = module.vpc.subnet_ip_ranges
+}
+

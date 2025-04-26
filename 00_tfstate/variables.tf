@@ -1,10 +1,15 @@
+variable "hcloud_token" {
+  description = "Hetzner Cloud API token"
+  type        = string
+}
+
 variable "project" {
   description = "Name of the project"
   type        = string
 }
 
 variable "location" {
-  description = "Hetzner location, e.g. nbg1"
+  description = "Hetzner location, e.g. nbg1, fsn1 or hel1"
   type        = string
 }
 

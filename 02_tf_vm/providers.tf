@@ -24,14 +24,30 @@ terraform {
   }
 }
 
-provider "hcloud" {
-  token = var.hcloud_token
+data "terraform_remote_state" "tfstate-tfstate" {
+  backend = "s3"
+  config = {
+    bucket = "yourname-hetzner-lab-tfstate"
+    key    = "tfstate.tfstate"
+    region = "main"
+    endpoints = {
+      s3 = "https://nbg1.your-objectstorage.com"
+    }
+
+    profile                     = "hetzner-lab"
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+    use_path_style              = true
+  }
 }
 
 data "terraform_remote_state" "tfstate-base" {
   backend = "s3"
   config = {
-    bucket = "yourname-${var.project}-tfstate"
+    bucket = "yourname-hetzner-lab-tfstate"
     key    = "base.tfstate"
     region = "main"
     endpoints = {
@@ -46,5 +62,9 @@ data "terraform_remote_state" "tfstate-base" {
     skip_s3_checksum            = true
     use_path_style              = true
   }
+}
+
+provider "hcloud" {
+  token = data.terraform_remote_state.tfstate-tfstate.outputs.hcloud_token
 }
 

@@ -1,8 +1,9 @@
 module "server" {
   source      = "./modules/services/vm"
-  project     = var.project
+  project     = data.terraform_remote_state.tfstate-tfstate.outputs.project
   server_type = var.server_type
-  location    = var.location
+  location    = data.terraform_remote_state.tfstate-tfstate.outputs.location
   public_key  = var.public_key
+  network_id  = data.terraform_remote_state.tfstate-base.outputs.network_id
 }
 
