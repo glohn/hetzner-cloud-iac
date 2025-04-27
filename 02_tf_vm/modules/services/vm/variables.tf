@@ -8,6 +8,11 @@ variable "location" {
   type        = string
 }
 
+variable "volume_size" {
+  description = "Size of additional volume on server"
+  type        = number
+}
+
 variable "server_type" {
   description = "Hetzner server type to deploy, e.g. cx22"
   type        = string
