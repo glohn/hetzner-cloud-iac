@@ -28,6 +28,11 @@ variable "network_id" {
   type        = string
 }
 
+variable "firewall_ids" {
+  description = "Firewall to use for instance"
+  type        = string
+}
+
 variable "load_balancer_id" {
   description = "The ID of the load balancer"
   type        = string

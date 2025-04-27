@@ -17,3 +17,10 @@ module "loadbalancer" {
   subnet_ip_range        = module.vpc.subnet_ip_ranges
 }
 
+module "firewall" {
+  source = "./modules/global/firewall"
+
+  project            = data.terraform_remote_state.tfstate-tfstate.outputs.project
+  allowed_ssh_ips    = var.allowed_ssh_ips
+  load_balancer_ipv4 = module.loadbalancer.load_balancer_ipv4
+}
