@@ -4,12 +4,17 @@ variable "project" {
 }
 
 variable "load_balancer_type" {
-  description = "Type of the Load Balancer"
+  description = "Type of the load Balancer"
   type        = string
 }
 
 variable "load_balancer_location" {
-  description = "Location of the Load Balancer"
+  description = "Location of the load Balancer"
+  type        = string
+}
+
+variable "domainname" {
+  description = "Domain to use for tls offloading in the load balancer"
   type        = string
 }
 

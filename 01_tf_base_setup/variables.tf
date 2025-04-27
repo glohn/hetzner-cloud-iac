@@ -8,3 +8,8 @@ variable "load_balancer_type" {
   type        = string
 }
 
+variable "domainname" {
+  description = "Domain to use for tls offloading in the load balancer"
+  type        = string
+}
+

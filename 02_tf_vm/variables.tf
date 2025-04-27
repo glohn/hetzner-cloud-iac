@@ -8,3 +8,9 @@ variable "server_type" {
   type        = string
 }
 
+variable "volume_size" {
+  description = "Size of additional volume on server"
+  type        = number
+}
+
+

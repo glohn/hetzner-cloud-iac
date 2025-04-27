@@ -12,6 +12,14 @@ resource "hcloud_server" "instance" {
   backups     = true
 }
 
+resource "hcloud_volume" "instance-volume" {
+  name      = "${var.project}-volume"
+  size      = var.volume_size
+  server_id = hcloud_server.instance.id
+  automount = true
+  format    = "ext4"
+}
+
 resource "hcloud_server_network" "server-network" {
   server_id  = hcloud_server.instance.id
   network_id = var.network_id
