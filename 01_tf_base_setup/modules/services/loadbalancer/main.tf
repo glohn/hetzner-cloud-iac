@@ -21,7 +21,7 @@ resource "hcloud_load_balancer_service" "https_service" {
   protocol         = "https"
 
   http {
-    certificates = [hcloud_uploaded_certificate.lets_encrypt_cert.id]
+    certificates  = [hcloud_uploaded_certificate.lets_encrypt_cert.id]
     redirect_http = true
   }
 

@@ -4,12 +4,13 @@ resource "hcloud_ssh_key" "ssh-key" {
 }
 
 resource "hcloud_server" "instance" {
-  name        = var.project
-  server_type = var.server_type
-  image       = "debian-12"
-  location    = var.location
-  ssh_keys    = [hcloud_ssh_key.ssh-key.id]
-  backups     = true
+  name         = var.project
+  server_type  = var.server_type
+  image        = "debian-12"
+  location     = var.location
+  ssh_keys     = [hcloud_ssh_key.ssh-key.id]
+  backups      = true
+  firewall_ids = [var.firewall_ids]
 }
 
 resource "hcloud_volume" "instance-volume" {

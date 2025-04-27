@@ -6,6 +6,7 @@ module "server" {
   volume_size      = var.volume_size
   public_key       = var.public_key
   network_id       = data.terraform_remote_state.tfstate-base.outputs.network_id
+  firewall_ids     = data.terraform_remote_state.tfstate-base.outputs.firewall_ids
   load_balancer_id = data.terraform_remote_state.tfstate-base.outputs.load_balancer_id
 }
 
