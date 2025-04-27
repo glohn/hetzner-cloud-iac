@@ -14,7 +14,7 @@ terraform {
     region   = "main"
     endpoint = "https://nbg1.your-objectstorage.com"
 
-    profile                     = "hetzner-lab"
+    profile                     = "hetzner-s3-tfstate"
     skip_credentials_validation = true
     skip_metadata_api_check     = true
     skip_region_validation      = true
@@ -34,7 +34,7 @@ data "terraform_remote_state" "tfstate-tfstate" {
       s3 = "https://nbg1.your-objectstorage.com"
     }
 
-    profile                     = "hetzner-lab"
+    profile                     = "hetzner-s3-tfstate"
     skip_credentials_validation = true
     skip_metadata_api_check     = true
     skip_region_validation      = true
@@ -54,7 +54,7 @@ data "terraform_remote_state" "tfstate-base" {
       s3 = "https://nbg1.your-objectstorage.com"
     }
 
-    profile                     = "hetzner-lab"
+    profile                     = "hetzner-s3-tfstate"
     skip_credentials_validation = true
     skip_metadata_api_check     = true
     skip_region_validation      = true

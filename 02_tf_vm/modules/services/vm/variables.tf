@@ -23,3 +23,8 @@ variable "network_id" {
   type        = string
 }
 
+variable "load_balancer_id" {
+  description = "The ID of the load balancer"
+  type        = string
+}
+

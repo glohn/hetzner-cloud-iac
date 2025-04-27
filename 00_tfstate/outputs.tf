@@ -9,7 +9,7 @@ output "location" {
 }
 
 output "hcloud_token" {
-  description = "Hetzner Cloud API token"
+  description = "Hetzner Cloud API token for project"
   value       = var.hcloud_token
   sensitive   = true
 }
