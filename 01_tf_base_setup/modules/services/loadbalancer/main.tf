@@ -10,18 +10,12 @@ resource "hcloud_load_balancer_network" "lb_network" {
   ip               = cidrhost(var.subnet_ip_range[0], 2) # Assigning the second IP address in the subnet
 }
 
-resource "hcloud_uploaded_certificate" "lets_encrypt_cert" {
-  name        = "${var.project}-cert"
-  certificate = file("ssl/fullchain1.pem")
-  private_key = file("ssl/privkey1.pem")
-}
-
 resource "hcloud_load_balancer_service" "https_service" {
   load_balancer_id = hcloud_load_balancer.load_balancer.id
   protocol         = "https"
 
   http {
-    certificates  = [hcloud_uploaded_certificate.lets_encrypt_cert.id]
+    certificates  = [var.managed_certificate]
     redirect_http = true
   }
 
