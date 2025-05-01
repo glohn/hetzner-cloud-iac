@@ -18,9 +18,9 @@ variable "server_type" {
   type        = string
 }
 
-variable "public_key" {
-  description = "SSH public key to provision"
-  type        = string
+variable "user_keys" {
+  description = "SSH public keys of users"
+  type        = map(string)
 }
 
 variable "network_id" {
