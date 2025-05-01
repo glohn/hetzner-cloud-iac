@@ -1,6 +1,7 @@
-resource "hcloud_ssh_key" "ssh-key" {
-  name       = "guido@local"
-  public_key = var.public_key
+resource "hcloud_ssh_key" "ssh_keys" {
+  for_each   = var.user_keys
+  name       = each.key
+  public_key = each.value
 }
 
 resource "hcloud_server" "instance" {
@@ -8,7 +9,7 @@ resource "hcloud_server" "instance" {
   server_type  = var.server_type
   image        = "debian-12"
   location     = var.location
-  ssh_keys     = [hcloud_ssh_key.ssh-key.id]
+  ssh_keys     = [for key in hcloud_ssh_key.ssh_keys : key.id]
   backups      = true
   firewall_ids = [var.firewall_ids]
 }

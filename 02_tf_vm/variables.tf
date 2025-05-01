@@ -1,6 +1,6 @@
-variable "public_key" {
-  description = "SSH public key"
-  type        = string
+variable "user_keys" {
+  description = "A map of usernames to their public keys"
+  type        = map(string)
 }
 
 variable "server_type" {
