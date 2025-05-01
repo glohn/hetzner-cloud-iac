@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "./modules/vpc"
+  source = "../tf-modules/vpc"
 
   project    = data.terraform_remote_state.tfstate-tfstate.outputs.project
   location   = data.terraform_remote_state.tfstate-tfstate.outputs.location
@@ -7,14 +7,14 @@ module "vpc" {
 }
 
 module "certificate" {
-  source = "./modules/services/certificate"
+  source = "../tf-modules/services/certificate"
 
   project    = data.terraform_remote_state.tfstate-tfstate.outputs.project
   domainname = var.domainname
 }
 
 module "loadbalancer" {
-  source = "./modules/services/loadbalancer"
+  source = "../tf-modules/services/loadbalancer"
 
   project                = data.terraform_remote_state.tfstate-tfstate.outputs.project
   load_balancer_type     = var.load_balancer_type
@@ -26,7 +26,7 @@ module "loadbalancer" {
 }
 
 module "firewall" {
-  source = "./modules/global/firewall"
+  source = "../tf-modules/global/firewall"
 
   project            = data.terraform_remote_state.tfstate-tfstate.outputs.project
   allowed_ssh_ips    = var.allowed_ssh_ips
@@ -34,7 +34,7 @@ module "firewall" {
 }
 
 module "dns" {
-  source = "./modules/services/dns"
+  source = "../tf-modules/services/dns"
 
   project            = data.terraform_remote_state.tfstate-tfstate.outputs.project
   domainname         = var.domainname
