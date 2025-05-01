@@ -1,5 +1,5 @@
 module "server" {
-  source           = "./modules/services/vm"
+  source           = "../tf-modules/services/vm"
   project          = data.terraform_remote_state.tfstate-tfstate.outputs.project
   server_type      = var.server_type
   location         = data.terraform_remote_state.tfstate-tfstate.outputs.location
