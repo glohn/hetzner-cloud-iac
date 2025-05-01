@@ -3,6 +3,11 @@ variable "hcloud_token" {
   type        = string
 }
 
+variable "hcloud_dns_token" {
+  description = "API token for access to Hetzner DNS"
+  type        = string
+}
+
 variable "project" {
   description = "Name of the project"
   type        = string

@@ -6,6 +6,13 @@ module "vpc" {
   cidr_block = var.cidr_block
 }
 
+module "certificate" {
+  source = "./modules/services/certificate"
+
+  project    = data.terraform_remote_state.tfstate-tfstate.outputs.project
+  domainname = var.domainname
+}
+
 module "loadbalancer" {
   source = "./modules/services/loadbalancer"
 
@@ -15,6 +22,7 @@ module "loadbalancer" {
   domainname             = var.domainname
   network_id             = module.vpc.network_id
   subnet_ip_range        = module.vpc.subnet_ip_ranges
+  managed_certificate    = module.certificate.managed_certificate_id
 }
 
 module "firewall" {
@@ -24,3 +32,12 @@ module "firewall" {
   allowed_ssh_ips    = var.allowed_ssh_ips
   load_balancer_ipv4 = module.loadbalancer.load_balancer_ipv4
 }
+
+module "dns" {
+  source = "./modules/services/dns"
+
+  project            = data.terraform_remote_state.tfstate-tfstate.outputs.project
+  domainname         = var.domainname
+  load_balancer_ipv4 = module.loadbalancer.load_balancer_ipv4
+}
+

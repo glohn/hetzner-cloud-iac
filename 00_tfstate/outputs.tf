@@ -14,3 +14,9 @@ output "hcloud_token" {
   sensitive   = true
 }
 
+output "hcloud_dns_token" {
+  description = "API token for access to Hetzner DNS"
+  value       = var.hcloud_dns_token
+  sensitive   = true
+}
+

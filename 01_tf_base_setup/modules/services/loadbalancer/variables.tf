@@ -20,9 +20,16 @@ variable "domainname" {
 
 variable "network_id" {
   description = "The ID of the private network"
+  type        = string
 }
 
 variable "subnet_ip_range" {
   description = "The IP ranges of the private subnets"
+  type        = list(string)
+}
+
+variable "managed_certificate" {
+  description = "ID of the managed certificate"
+  type        = string
 }
 

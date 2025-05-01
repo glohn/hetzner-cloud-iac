@@ -6,6 +6,10 @@ terraform {
       source  = "hetznercloud/hcloud"
       version = "~> 1.45"
     }
+    hetznerdns = {
+      source  = "timohirt/hetznerdns"
+      version = "~> 1.0"
+    }
   }
 
   backend "s3" {
@@ -46,5 +50,9 @@ data "terraform_remote_state" "tfstate-tfstate" {
 
 provider "hcloud" {
   token = data.terraform_remote_state.tfstate-tfstate.outputs.hcloud_token
+}
+
+provider "hetznerdns" {
+  apitoken = data.terraform_remote_state.tfstate-tfstate.outputs.hcloud_dns_token
 }
 
