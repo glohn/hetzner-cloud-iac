@@ -15,3 +15,5 @@ sudo echo \
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+sudo docker run --rm -d --name webserver -p 80:80 nginx
+
