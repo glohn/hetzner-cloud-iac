@@ -23,6 +23,11 @@ output "load_balancer_id" {
   value       = module.loadbalancer.load_balancer_id
 }
 
+output "load_balancer_ipv4" {
+  description = "IPv4 of the load balancer"
+  value = module.loadbalancer.load_balancer_ipv4
+}
+
 output "managed_certificate_id" {
   description = "ID of the managed certificate"
   value       = module.certificate.managed_certificate_id

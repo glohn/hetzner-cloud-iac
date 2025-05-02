@@ -13,4 +13,8 @@ variable "volume_size" {
   type        = number
 }
 
+variable "allowed_ssh_ips" {
+  description = "IPs which are allowed to ssh into instance"
+  type        = list(string)
+}
 
