@@ -13,10 +13,15 @@ variable "load_balancer_ipv4" {
   type        = string
 }
 
+variable "server_id" {
+  description = "IDs of the servers"
+  type        = list(string)
+}
+
 variable "source_ips" {
-  description = "IPv4 of the provisioned instances"
-  type        = string
-  default     = "0.0.0.0/0"
+  description = "IPv4 addresses of the provisioned instances"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }
 
 variable "ssh_port" {

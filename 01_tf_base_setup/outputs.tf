@@ -13,11 +13,6 @@ output "subnet_ip_ranges" {
   value       = module.vpc.subnet_ip_ranges
 }
 
-output "firewall_ids" {
-  description = "ID of the firewall"
-  value       = module.firewall.firewall_ids
-}
-
 output "load_balancer_id" {
   description = "The ID of the load balancer"
   value       = module.loadbalancer.load_balancer_id

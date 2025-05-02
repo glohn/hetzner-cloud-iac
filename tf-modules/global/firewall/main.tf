@@ -15,6 +15,12 @@ resource "hcloud_firewall" "fw-ssh" {
   }
 }
 
+resource "hcloud_firewall_attachment" "fw-ssh" {
+  count       = length(var.server_id)
+  firewall_id = hcloud_firewall.fw-ssh.id
+  server_ids  = [var.server_id[count.index]]
+}
+
 resource "hcloud_firewall" "fw-elasticsearch" {
   name = "${var.project}-fw-elasticsearch"
 
@@ -22,8 +28,14 @@ resource "hcloud_firewall" "fw-elasticsearch" {
     direction  = "in"
     protocol   = "tcp"
     port       = var.elastic_port
-    source_ips = [var.source_ips]
+    source_ips = var.source_ips
   }
+}
+
+resource "hcloud_firewall_attachment" "fw-elasticsearch" {
+  count       = length(var.server_id)
+  firewall_id = hcloud_firewall.fw-elasticsearch.id
+  server_ids  = [var.server_id[count.index]]
 }
 
 resource "hcloud_firewall" "fw-http" {
@@ -37,6 +49,12 @@ resource "hcloud_firewall" "fw-http" {
   }
 }
 
+resource "hcloud_firewall_attachment" "fw-http" {
+  count       = length(var.server_id)
+  firewall_id = hcloud_firewall.fw-http.id
+  server_ids  = [var.server_id[count.index]]
+}
+
 resource "hcloud_firewall" "fw-rds" {
   name = "${var.project}-fw-rds"
 
@@ -44,8 +62,14 @@ resource "hcloud_firewall" "fw-rds" {
     direction  = "in"
     protocol   = "tcp"
     port       = var.rds_port
-    source_ips = [var.source_ips]
+    source_ips = var.source_ips
   }
+}
+
+resource "hcloud_firewall_attachment" "fw-rds" {
+  count       = length(var.server_id)
+  firewall_id = hcloud_firewall.fw-rds.id
+  server_ids  = [var.server_id[count.index]]
 }
 
 resource "hcloud_firewall" "fw-redis" {
@@ -55,7 +79,13 @@ resource "hcloud_firewall" "fw-redis" {
     direction  = "in"
     protocol   = "tcp"
     port       = var.redis_port
-    source_ips = [var.source_ips]
+    source_ips = var.source_ips
   }
+}
+
+resource "hcloud_firewall_attachment" "fw-redis" {
+  count       = length(var.server_id)
+  firewall_id = hcloud_firewall.fw-redis.id
+  server_ids  = [var.server_id[count.index]]
 }
 
