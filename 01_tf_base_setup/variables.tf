@@ -13,8 +13,3 @@ variable "domainname" {
   type        = string
 }
 
-variable "allowed_ssh_ips" {
-  description = "IPs which are allowed to ssh into instance"
-  type        = list(string)
-}
-

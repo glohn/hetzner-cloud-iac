@@ -25,14 +25,6 @@ module "loadbalancer" {
   managed_certificate    = module.certificate.managed_certificate_id
 }
 
-module "firewall" {
-  source = "../tf-modules/global/firewall"
-
-  project            = data.terraform_remote_state.tfstate-tfstate.outputs.project
-  allowed_ssh_ips    = var.allowed_ssh_ips
-  load_balancer_ipv4 = module.loadbalancer.load_balancer_ipv4
-}
-
 module "dns" {
   source = "../tf-modules/services/dns"
 
