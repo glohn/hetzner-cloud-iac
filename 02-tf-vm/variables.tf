@@ -3,6 +3,12 @@ variable "user_keys" {
   type        = map(string)
 }
 
+variable "server_type_bastion" {
+  description = "Hetzner server type to deploy, e.g. cx22"
+  type        = string
+  default     = null
+}
+
 variable "server_type_sw_web" {
   description = "Hetzner server type to deploy, e.g. cx22"
   type        = string

@@ -36,4 +36,3 @@ resource "hcloud_server_network" "vm_sw_web_network" {
   network_id = var.network_id
 }
 
-

@@ -8,8 +8,8 @@ output "subnet_ids" {
   value       = [for subnet in hcloud_network_subnet.private-subnet : subnet.id]
 }
 
-output "subnet_ip_ranges" {
-  description = "The IP ranges of the private subnets"
-  value       = [for i in range(var.subnet_count) : hcloud_network_subnet.private-subnet[i].ip_range]
-}
+#output "subnet_ip_ranges" {
+#  description = "The IP ranges of the private subnets"
+#  value       = [for i in range(var.subnet_count) : hcloud_network_subnet.private-subnet[i].ip_range]
+#}
 

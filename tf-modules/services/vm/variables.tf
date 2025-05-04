@@ -23,8 +23,23 @@ variable "network_id" {
   type        = string
 }
 
-variable "load_balancer_id" {
-  description = "The ID of the load balancer"
+#variable "load_balancer_id" {
+#  description = "The ID of the load balancer"
+#  type        = string
+#}
+
+#variable "domainname" {
+#  description = "Domain to use for tls offloading in the load balancer"
+#  type        = string
+#}
+
+#variable "managed_certificate" {
+#  description = "ID of the managed certificate"
+#  type        = string
+#}
+
+variable "server_type_bastion" {
+  description = "Hetzner server type to deploy, e.g. cx22"
   type        = string
 }
 
