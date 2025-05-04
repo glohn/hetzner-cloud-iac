@@ -13,23 +13,55 @@ variable "load_balancer_location" {
   type        = string
 }
 
-variable "domainname" {
-  description = "Domain to use for tls offloading in the load balancer"
-  type        = string
-}
-
 variable "network_id" {
   description = "The ID of the private network"
   type        = string
 }
 
-variable "subnet_ip_range" {
-  description = "The IP ranges of the private subnets"
-  type        = list(string)
-}
-
 variable "managed_certificate" {
   description = "ID of the managed certificate"
   type        = string
+}
+
+variable "server_type_sw_web" {
+  description = "Hetzner server type to deploy, e.g. cx22"
+  type        = string
+  default     = null
+}
+
+variable "server_type_sw_admin" {
+  description = "Hetzner server type to deploy, e.g. cx22"
+  type        = string
+  default     = null
+}
+
+variable "server_type_pim" {
+  description = "Hetzner server type to deploy, e.g. cx22"
+  type        = string
+  default     = null
+}
+
+variable "number_instances_sw_web" {
+  description = "Number of Shopware webserver"
+  type        = number
+  default     = 0
+}
+
+variable "server_ids_sw_web" {
+  description = "IDs of the Shopware web servers"
+  type        = list(string)
+  default     = null
+}
+
+variable "server_id_sw_admin" {
+  description = "ID of the Shopware adminserver"
+  type        = list(string)
+  default     = null
+}
+
+variable "server_id_pim" {
+  description = "ID of the pimcore server"
+  type        = list(string)
+  default     = null
 }
 

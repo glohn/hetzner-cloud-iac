@@ -3,16 +3,13 @@ terraform {
 
   required_providers {
     hcloud = {
-      source  = "hetznercloud/hcloud"
-    }
-    cloudinit = {
-      source  = "hashicorp/cloudinit"
+      source = "hetznercloud/hcloud"
     }
   }
 
   backend "s3" {
-    bucket   = "yourname-hetzner-lab-tfstate"
-    key      = "vm.tfstate"
+    bucket   = "yourname-test-lab-tfstate"
+    key      = "vm-post.tfstate"
     region   = "main"
     endpoint = "https://nbg1.your-objectstorage.com"
 
@@ -29,7 +26,7 @@ terraform {
 data "terraform_remote_state" "tfstate-tfstate" {
   backend = "s3"
   config = {
-    bucket = "yourname-hetzner-lab-tfstate"
+    bucket = "yourname-test-lab-tfstate"
     key    = "tfstate.tfstate"
     region = "main"
     endpoints = {
@@ -49,8 +46,28 @@ data "terraform_remote_state" "tfstate-tfstate" {
 data "terraform_remote_state" "tfstate-base" {
   backend = "s3"
   config = {
-    bucket = "yourname-hetzner-lab-tfstate"
+    bucket = "yourname-test-lab-tfstate"
     key    = "base.tfstate"
+    region = "main"
+    endpoints = {
+      s3 = "https://nbg1.your-objectstorage.com"
+    }
+
+    profile                     = "hetzner-s3-tfstate"
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+    use_path_style              = true
+  }
+}
+
+data "terraform_remote_state" "tfstate-vm" {
+  backend = "s3"
+  config = {
+    bucket = "yourname-test-lab-tfstate"
+    key    = "vm.tfstate"
     region = "main"
     endpoints = {
       s3 = "https://nbg1.your-objectstorage.com"
