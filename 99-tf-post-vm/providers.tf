@@ -5,10 +5,13 @@ terraform {
     hcloud = {
       source = "hetznercloud/hcloud"
     }
+    hetznerdns = {
+      source = "timohirt/hetznerdns"
+    }
   }
 
   backend "s3" {
-    bucket   = "yourname-test-lab-tfstate"
+    bucket   = "yourname-hetzner-lab-tfstate"
     key      = "vm-post.tfstate"
     region   = "main"
     endpoint = "https://nbg1.your-objectstorage.com"
@@ -26,7 +29,7 @@ terraform {
 data "terraform_remote_state" "tfstate-tfstate" {
   backend = "s3"
   config = {
-    bucket = "yourname-test-lab-tfstate"
+    bucket = "yourname-hetzner-lab-tfstate"
     key    = "tfstate.tfstate"
     region = "main"
     endpoints = {
@@ -46,7 +49,7 @@ data "terraform_remote_state" "tfstate-tfstate" {
 data "terraform_remote_state" "tfstate-base" {
   backend = "s3"
   config = {
-    bucket = "yourname-test-lab-tfstate"
+    bucket = "yourname-hetzner-lab-tfstate"
     key    = "base.tfstate"
     region = "main"
     endpoints = {
@@ -66,7 +69,7 @@ data "terraform_remote_state" "tfstate-base" {
 data "terraform_remote_state" "tfstate-vm" {
   backend = "s3"
   config = {
-    bucket = "yourname-test-lab-tfstate"
+    bucket = "yourname-hetzner-lab-tfstate"
     key    = "vm.tfstate"
     region = "main"
     endpoints = {
@@ -85,5 +88,9 @@ data "terraform_remote_state" "tfstate-vm" {
 
 provider "hcloud" {
   token = data.terraform_remote_state.tfstate-tfstate.outputs.hcloud_token
+}
+
+provider "hetznerdns" {
+  apitoken = data.terraform_remote_state.tfstate-tfstate.outputs.hcloud_dns_token
 }
 

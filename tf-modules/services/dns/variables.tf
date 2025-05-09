@@ -8,7 +8,17 @@ variable "domainname" {
   type        = string
 }
 
-variable "load_balancer_ipv4" {
+variable "load_balancer_sw_web_ipv4" {
+  description = "The IPv4 of the load balancer"
+  type        = string
+}
+
+variable "load_balancer_sw_admin_ipv4" {
+  description = "The IPv4 of the load balancer"
+  type        = string
+}
+
+variable "load_balancer_pim_ipv4" {
   description = "The IPv4 of the load balancer"
   type        = string
 }

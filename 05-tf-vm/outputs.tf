@@ -13,10 +13,10 @@ output "server_id_sw_admin" {
   value       = module.server.server_id_sw_admin
 }
 
-#output "server_id_pim" {
-#  description = "ID of the pimcore server"
-#  value       = module.server.server_id_pim
-#}
+output "server_id_pim" {
+  description = "ID of the pimcore server"
+  value       = module.server.server_id_pim
+}
 
 output "server_type_sw_web" {
   description = "Hetzner server type to deploy, e.g. cx22"

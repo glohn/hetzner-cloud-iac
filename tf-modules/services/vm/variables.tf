@@ -58,26 +58,6 @@ variable "server_type_pim" {
   type        = string
 }
 
-variable "server_type_rds" {
-  description = "Hetzner server type to deploy, e.g. cx22"
-  type        = string
-}
-
-variable "server_type_elasticsearch" {
-  description = "Hetzner server type to deploy, e.g. cx22"
-  type        = string
-}
-
-variable "server_type_rabbitmq" {
-  description = "Hetzner server type to deploy, e.g. cx22"
-  type        = string
-}
-
-variable "server_type_redis" {
-  description = "Hetzner server type to deploy, e.g. cx22"
-  type        = string
-}
-
 variable "number_instances_sw_web" {
   description = "Number of shopware webserver"
   type        = number
