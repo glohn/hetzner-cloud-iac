@@ -1,3 +1,8 @@
+output "ssh_key_ids" {
+  description = "IDs of ssh keys"
+  value       = module.ssh.ssh_key_ids
+}
+
 output "network_id" {
   description = "The ID of the private network"
   value       = module.vpc.network_id

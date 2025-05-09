@@ -8,13 +8,8 @@ variable "location" {
   type        = string
 }
 
-variable "volume_size" {
-  description = "Size of additional volume on server"
-  type        = number
-}
-
-variable "user_keys" {
-  description = "SSH public keys of users"
+variable "ssh_key_ids" {
+  description = "IDs of ssh keys"
   type        = map(string)
 }
 
@@ -22,21 +17,6 @@ variable "network_id" {
   description = "The ID of the private network"
   type        = string
 }
-
-#variable "load_balancer_id" {
-#  description = "The ID of the load balancer"
-#  type        = string
-#}
-
-#variable "domainname" {
-#  description = "Domain to use for tls offloading in the load balancer"
-#  type        = string
-#}
-
-#variable "managed_certificate" {
-#  description = "ID of the managed certificate"
-#  type        = string
-#}
 
 variable "server_type_bastion" {
   description = "Hetzner server type to deploy, e.g. cx22"

@@ -20,7 +20,7 @@ resource "hcloud_server" "vm-sw-admin" {
   server_type = var.server_type_sw_admin
   image       = "debian-12"
   location    = var.location
-  ssh_keys    = [for key in hcloud_ssh_key.ssh_keys : key.id]
+  ssh_keys    = values(var.ssh_key_ids)
   backups     = true
   public_net {
     ipv4_enabled = true
