@@ -6,6 +6,12 @@ module "vpc" {
   cidr_block = var.cidr_block
 }
 
+module "ssh" {
+  source = "../tf-modules/services/ssh"
+
+  user_keys = var.user_keys
+}
+
 module "certificate" {
   source = "../tf-modules/services/certificate"
 

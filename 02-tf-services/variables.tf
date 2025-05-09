@@ -22,3 +22,9 @@ variable "server_type_redis" {
   default     = null
 }
 
+variable "volume_size" {
+  description = "Size of additional volume"
+  type        = number
+  default     = 0
+}
+

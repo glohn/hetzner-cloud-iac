@@ -13,7 +13,7 @@ resource "hcloud_server" "vm-bastion" {
   server_type = var.server_type_bastion
   image       = "debian-12"
   location    = var.location
-  ssh_keys    = [for key in hcloud_ssh_key.ssh_keys : key.id]
+  ssh_keys    = values(var.ssh_key_ids)
   backups     = true
   public_net {
     ipv4_enabled = true

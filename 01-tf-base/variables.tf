@@ -8,3 +8,8 @@ variable "domainname" {
   type        = string
 }
 
+variable "user_keys" {
+  description = "A map of usernames to their public keys"
+  type        = map(string)
+}
+
