@@ -4,7 +4,7 @@ terraform {
       source = "hetznercloud/hcloud"
     }
     hetznerdns = {
-      source  = "timohirt/hetznerdns"
+      source = "timohirt/hetznerdns"
     }
   }
 }

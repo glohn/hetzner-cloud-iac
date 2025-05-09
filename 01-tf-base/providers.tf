@@ -11,7 +11,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket   = "yourname-test-lab-tfstate"
+    bucket   = "yourname-hetzner-lab-tfstate"
     key      = "base.tfstate"
     region   = "main"
     endpoint = "https://nbg1.your-objectstorage.com"
@@ -29,7 +29,7 @@ terraform {
 data "terraform_remote_state" "tfstate-tfstate" {
   backend = "s3"
   config = {
-    bucket = "yourname-test-lab-tfstate"
+    bucket = "yourname-hetzner-lab-tfstate"
     key    = "tfstate.tfstate"
     region = "main"
     endpoints = {

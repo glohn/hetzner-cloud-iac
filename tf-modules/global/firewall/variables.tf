@@ -8,21 +8,41 @@ variable "allowed_ssh_ips" {
   type        = list(string)
 }
 
-variable "load_balancer_ipv4" {
+variable "load_balancer_sw_web_ipv4" {
   description = "IPv4 of the load balancer"
   type        = string
 }
 
-variable "server_id" {
+variable "load_balancer_sw_admin_ipv4" {
+  description = "IPv4 of the load balancer"
+  type        = string
+}
+
+variable "load_balancer_pim_ipv4" {
+  description = "IPv4 of the load balancer"
+  type        = string
+}
+
+variable "server_ids_sw_web" {
   description = "IDs of the servers"
   type        = list(string)
 }
 
-variable "source_ips" {
-  description = "IPv4 addresses of the provisioned instances"
+variable "server_id_sw_admin" {
+  description = "IDs of the servers"
   type        = list(string)
-  default     = ["0.0.0.0/0"]
 }
+
+variable "server_id_pim" {
+  description = "IDs of the servers"
+  type        = list(string)
+}
+
+#variable "source_ips" {
+#  description = "IPv4 addresses of the provisioned instances"
+#  type        = list(string)
+#  default     = ["0.0.0.0/0"]
+#}
 
 variable "ssh_port" {
   description = "Port for ssh service"
