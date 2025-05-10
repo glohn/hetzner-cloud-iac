@@ -14,10 +14,11 @@ output "server_id_pim" {
 }
 
 output "ipv4_addresses" {
-  description = "Public IPv4 addresses of the created shopware webservers and admin servers"
+  description = "Public IPv4 addresses of the created servers"
   value = concat(
     [for i in range(var.number_instances_sw_web) : hcloud_server.vm-sw-web[i].ipv4_address],
-    [for i in range(var.server_type_sw_admin != null ? 1 : 0) : hcloud_server.vm-sw-admin[i].ipv4_address]
+    [for i in range(var.server_type_sw_admin != null ? 1 : 0) : hcloud_server.vm-sw-admin[i].ipv4_address],
+    [for i in range(var.server_type_pim != null ? 1 : 0) : hcloud_server.vm-pim[i].ipv4_address]
   )
 }
 

@@ -27,7 +27,7 @@ resource "hcloud_server" "vm-pim" {
     ipv6_enabled = false
   }
 
-  user_data = data.cloudinit_config.user-data-sw-admin[count.index].rendered
+  user_data = data.cloudinit_config.user-data-pim[count.index].rendered
 }
 
 resource "hcloud_server_network" "vm_pim_network" {
