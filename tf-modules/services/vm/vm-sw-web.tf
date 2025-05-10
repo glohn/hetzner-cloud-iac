@@ -1,5 +1,5 @@
 data "cloudinit_config" "user-data-sw-web" {
-  count = var.number_instances_sw_web
+  count = var.server_type_sw_web != null ? 1 : 0
 
   part {
     content_type = "text/x-shellscript"
@@ -8,7 +8,7 @@ data "cloudinit_config" "user-data-sw-web" {
 }
 
 resource "hcloud_server" "vm-sw-web" {
-  count = var.number_instances_sw_web
+  count = var.server_type_sw_web != null ? 1 : 0
 
   lifecycle {
     ignore_changes = [
@@ -31,7 +31,8 @@ resource "hcloud_server" "vm-sw-web" {
 }
 
 resource "hcloud_server_network" "vm_sw_web_network" {
-  count      = var.number_instances_sw_web
+  count = var.server_type_sw_web != null ? 1 : 0
+
   server_id  = hcloud_server.vm-sw-web[count.index].id
   network_id = var.network_id
 }

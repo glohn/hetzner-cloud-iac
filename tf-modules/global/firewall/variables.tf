@@ -3,6 +3,11 @@ variable "project" {
   type        = string
 }
 
+variable "subnet_cidrs" {
+  description = "CIDRs of the private subnets"
+  type        = list(string)
+}
+
 variable "allowed_ssh_ips" {
   description = "List of IPs allowed to access SSH"
   type        = list(string)
@@ -38,11 +43,25 @@ variable "server_id_pim" {
   type        = list(string)
 }
 
-#variable "source_ips" {
-#  description = "IPv4 addresses of the provisioned instances"
-#  type        = list(string)
-#  default     = ["0.0.0.0/0"]
-#}
+variable "server_id_rabbitmq" {
+  description = "IDs of the servers"
+  type        = list(string)
+}
+
+variable "server_id_rds" {
+  description = "IDs of the servers"
+  type        = list(string)
+}
+
+variable "server_id_redis" {
+  description = "IDs of the servers"
+  type        = list(string)
+}
+
+variable "server_id_elasticsearch" {
+  description = "IDs of the servers"
+  type        = list(string)
+}
 
 variable "ssh_port" {
   description = "Port for ssh service"
@@ -60,6 +79,18 @@ variable "http_port" {
   description = "Port for http service"
   type        = string
   default     = "80"
+}
+
+variable "rabbitmq_port" {
+  description = "Port for rabbitmq service"
+  type        = string
+  default     = "5672"
+}
+
+variable "rabbitmq_mgmt_port" {
+  description = "Port for rabbitmq management ui"
+  type        = string
+  default     = "15672"
 }
 
 variable "rds_port" {
