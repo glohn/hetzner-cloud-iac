@@ -11,6 +11,9 @@ terraform {
     template = {
       source = "hashicorp/template"
     }
+    hetznerdns = {
+      source = "timohirt/hetznerdns"
+    }
   }
 
   backend "s3" {
@@ -71,5 +74,9 @@ data "terraform_remote_state" "tfstate-base" {
 
 provider "hcloud" {
   token = data.terraform_remote_state.tfstate-tfstate.outputs.hcloud_token
+}
+
+provider "hetznerdns" {
+  apitoken = data.terraform_remote_state.tfstate-tfstate.outputs.hcloud_dns_token
 }
 

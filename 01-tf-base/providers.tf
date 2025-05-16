@@ -8,6 +8,12 @@ terraform {
     hetznerdns = {
       source = "timohirt/hetznerdns"
     }
+    cloudinit = {
+      source = "hashicorp/cloudinit"
+    }
+    template = {
+      source = "hashicorp/template"
+    }
   }
 
   backend "s3" {
