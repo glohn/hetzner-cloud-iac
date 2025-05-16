@@ -16,51 +16,67 @@ variable "allowed_ssh_ips" {
 variable "load_balancer_sw_web_ipv4" {
   description = "IPv4 of the load balancer"
   type        = string
+  default     = null
 }
 
 variable "load_balancer_sw_admin_ipv4" {
   description = "IPv4 of the load balancer"
   type        = string
+  default     = null
 }
 
 variable "load_balancer_pim_ipv4" {
   description = "IPv4 of the load balancer"
   type        = string
+  default     = null
+}
+
+variable "server_id_bastion" {
+  description = "IDs of the servers"
+  type        = list(string)
+  default     = []
 }
 
 variable "server_ids_sw_web" {
   description = "IDs of the servers"
   type        = list(string)
+  default     = []
 }
 
 variable "server_id_sw_admin" {
   description = "IDs of the servers"
   type        = list(string)
+  default     = []
 }
 
 variable "server_id_pim" {
   description = "IDs of the servers"
   type        = list(string)
+  default     = []
 }
 
 variable "server_id_rabbitmq" {
   description = "IDs of the servers"
   type        = list(string)
+  default     = []
 }
 
 variable "server_id_rds" {
   description = "IDs of the servers"
   type        = list(string)
+  default     = []
 }
 
 variable "server_id_redis" {
   description = "IDs of the servers"
   type        = list(string)
+  default     = []
 }
 
 variable "server_id_elasticsearch" {
   description = "IDs of the servers"
   type        = list(string)
+  default     = []
 }
 
 variable "ssh_port" {

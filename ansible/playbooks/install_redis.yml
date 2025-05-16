@@ -1,0 +1,19 @@
+---
+- name: Install Redis
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install Redis
+      apt:
+        name: redis-server
+        state: present
+
+    - name: Ensure Redis is running
+      service:
+        name: redis-server
+        state: started 

@@ -64,10 +64,10 @@ resource "hcloud_load_balancer_service" "https_service_sw_web" {
 }
 
 resource "hcloud_load_balancer_target" "load_balancer_target_sw_web" {
-  count            = var.number_instances_sw_web
+  for_each         = { for idx, id in var.server_ids_sw_web : idx => id }
   type             = "server"
   load_balancer_id = hcloud_load_balancer.load_balancer_sw_web[0].id
-  server_id        = var.server_ids_sw_web[count.index]
+  server_id        = each.value
   use_private_ip   = true
   depends_on       = [hcloud_load_balancer_network.lb_network_sw_web]
 }
@@ -140,5 +140,22 @@ resource "hcloud_load_balancer_target" "load_balancer_target_pim" {
   server_id        = var.server_id_pim[count.index]
   use_private_ip   = true
   depends_on       = [hcloud_load_balancer_network.lb_network_pim]
+}
+
+resource "hcloud_load_balancer_service" "ssh_service_gitlab" {
+  count            = var.server_type_sw_web != null ? 1 : 0
+  load_balancer_id = hcloud_load_balancer.load_balancer_sw_web[0].id
+  protocol         = "tcp"
+
+  listen_port      = 22
+  destination_port = 22
+
+  health_check {
+    protocol = "tcp"
+    port     = 22
+    interval = 30
+    timeout  = 5
+    retries  = 2
+  }
 }
 
