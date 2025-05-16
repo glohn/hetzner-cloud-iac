@@ -1,24 +1,3 @@
-locals {
-  server_ids_all = compact(concat(
-    var.server_ids_sw_web,
-    var.server_id_sw_admin,
-    var.server_id_pim,
-    var.server_id_bastion
-  ))
-
-  server_ids_http = compact(concat(
-    var.server_ids_sw_web,
-    var.server_id_sw_admin,
-    var.server_id_pim
-  ))
-
-  source_load_balancer_ips = compact([
-    var.load_balancer_sw_web_ipv4,
-    var.load_balancer_sw_admin_ipv4,
-    var.load_balancer_pim_ipv4
-  ])
-}
-
 resource "hcloud_firewall" "fw-ssh" {
   name = "${var.project}-fw-ssh"
 
@@ -36,11 +15,6 @@ resource "hcloud_firewall" "fw-ssh" {
   }
 }
 
-resource "hcloud_firewall_attachment" "fw-ssh" {
-  firewall_id = hcloud_firewall.fw-ssh.id
-  server_ids  = local.server_ids_all
-}
-
 resource "hcloud_firewall" "fw-elasticsearch" {
   name = "${var.project}-fw-elasticsearch"
 
@@ -50,28 +24,6 @@ resource "hcloud_firewall" "fw-elasticsearch" {
     port       = var.elastic_port
     source_ips = var.subnet_cidrs
   }
-}
-
-resource "hcloud_firewall_attachment" "fw-elasticsearch" {
-  count       = length(var.server_id_elasticsearch) > 0 ? 1 : 0
-  firewall_id = hcloud_firewall.fw-elasticsearch.id
-  server_ids  = var.server_id_elasticsearch
-}
-
-resource "hcloud_firewall" "fw-http" {
-  name = "${var.project}-fw-http"
-
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = var.http_port
-    source_ips = local.source_load_balancer_ips
-  }
-}
-
-resource "hcloud_firewall_attachment" "fw-http" {
-  firewall_id = hcloud_firewall.fw-http.id
-  server_ids  = local.server_ids_http
 }
 
 resource "hcloud_firewall" "fw-rabbitmq" {
@@ -92,12 +44,6 @@ resource "hcloud_firewall" "fw-rabbitmq" {
   }
 }
 
-resource "hcloud_firewall_attachment" "fw-rabbitmq" {
-  count       = length(var.server_id_rabbitmq) > 0 ? 1 : 0
-  firewall_id = hcloud_firewall.fw-rabbitmq.id
-  server_ids  = var.server_id_rabbitmq
-}
-
 resource "hcloud_firewall" "fw-rds" {
   name = "${var.project}-fw-rds"
 
@@ -109,12 +55,6 @@ resource "hcloud_firewall" "fw-rds" {
   }
 }
 
-resource "hcloud_firewall_attachment" "fw-rds" {
-  count       = length(var.server_id_rds) > 0 ? 1 : 0
-  firewall_id = hcloud_firewall.fw-rds.id
-  server_ids  = var.server_id_rds
-}
-
 resource "hcloud_firewall" "fw-redis" {
   name = "${var.project}-fw-redis"
 
@@ -124,11 +64,5 @@ resource "hcloud_firewall" "fw-redis" {
     port       = var.redis_port
     source_ips = var.subnet_cidrs
   }
-}
-
-resource "hcloud_firewall_attachment" "fw-redis" {
-  count       = length(var.server_id_redis) > 0 ? 1 : 0
-  firewall_id = hcloud_firewall.fw-redis.id
-  server_ids  = var.server_id_redis
 }
 

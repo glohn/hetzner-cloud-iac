@@ -65,3 +65,9 @@ variable "server_id_pim" {
   default     = null
 }
 
+variable "http_port" {
+  description = "Port for http service"
+  type        = string
+  default     = "80"
+}
+

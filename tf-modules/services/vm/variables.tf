@@ -23,6 +23,11 @@ variable "network_id" {
   type        = string
 }
 
+variable "firewall_id_ssh" {
+  description = "The ID of the ssh firewall rule"
+  type        = string
+}
+
 variable "server_type_bastion" {
   description = "Hetzner server type to deploy, e.g. cx22"
   type        = string
