@@ -1,16 +1,22 @@
 locals {
-  server_ids = concat(
+  server_ids_all = compact(concat(
     var.server_ids_sw_web,
     var.server_id_sw_admin,
     var.server_id_pim,
     var.server_id_bastion
-  )
+  ))
 
-  source_load_balancer_ips = [
+  server_ids_http = compact(concat(
+    var.server_ids_sw_web,
+    var.server_id_sw_admin,
+    var.server_id_pim
+  ))
+
+  source_load_balancer_ips = compact([
     var.load_balancer_sw_web_ipv4,
     var.load_balancer_sw_admin_ipv4,
     var.load_balancer_pim_ipv4
-  ]
+  ])
 }
 
 resource "hcloud_firewall" "fw-ssh" {
@@ -32,7 +38,7 @@ resource "hcloud_firewall" "fw-ssh" {
 
 resource "hcloud_firewall_attachment" "fw-ssh" {
   firewall_id = hcloud_firewall.fw-ssh.id
-  server_ids  = local.server_ids
+  server_ids  = local.server_ids_all
 }
 
 resource "hcloud_firewall" "fw-elasticsearch" {
@@ -65,11 +71,7 @@ resource "hcloud_firewall" "fw-http" {
 
 resource "hcloud_firewall_attachment" "fw-http" {
   firewall_id = hcloud_firewall.fw-http.id
-  server_ids = concat(
-    var.server_ids_sw_web,
-    var.server_id_sw_admin,
-    var.server_id_pim
-  )
+  server_ids  = local.server_ids_http
 }
 
 resource "hcloud_firewall" "fw-rabbitmq" {
