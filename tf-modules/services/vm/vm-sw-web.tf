@@ -1,5 +1,5 @@
 data "cloudinit_config" "user-data-sw-web" {
-  count = var.server_type_sw_web != null ? 1 : 0
+  for_each = { for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i }
 
   part {
     content_type = "text/x-shellscript"
@@ -8,7 +8,7 @@ data "cloudinit_config" "user-data-sw-web" {
 }
 
 resource "hcloud_server" "vm-sw-web" {
-  count = var.server_type_sw_web != null ? 1 : 0
+  for_each = { for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i }
 
   lifecycle {
     ignore_changes = [
@@ -16,7 +16,7 @@ resource "hcloud_server" "vm-sw-web" {
     ]
   }
 
-  name        = "${var.project}-web${count.index + 1}"
+  name        = "${var.project}-web${each.value + 1}"
   server_type = var.server_type_sw_web
   image       = "debian-12"
   location    = var.location
@@ -27,13 +27,13 @@ resource "hcloud_server" "vm-sw-web" {
     ipv6_enabled = false
   }
 
-  user_data = data.cloudinit_config.user-data-sw-web[count.index].rendered
+  user_data = data.cloudinit_config.user-data-sw-web[each.key].rendered
 }
 
 resource "hcloud_server_network" "vm_sw_web_network" {
-  count = var.server_type_sw_web != null ? 1 : 0
+  for_each = { for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i }
 
-  server_id  = hcloud_server.vm-sw-web[count.index].id
+  server_id  = hcloud_server.vm-sw-web[each.key].id
   network_id = var.network_id
 }
 

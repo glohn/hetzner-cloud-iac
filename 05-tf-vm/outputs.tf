@@ -3,6 +3,11 @@ output "server_ips" {
   value       = module.server.ipv4_addresses
 }
 
+output "server_id_bastion" {
+  description = "ID of the Shopware adminserver"
+  value       = module.server.server_id_bastion
+}
+
 output "server_ids_sw_web" {
   description = "IDs of the Shopware web servers"
   value       = module.server.server_ids_sw_web

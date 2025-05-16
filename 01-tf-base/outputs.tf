@@ -3,6 +3,17 @@ output "ssh_key_ids" {
   value       = module.ssh.ssh_key_ids
 }
 
+output "ansible_public_key" {
+  description = "Public SSH key for ansible"
+  value       = module.ssh.ansible_public_key
+}
+
+output "ansible_private_key" {
+  description = "Private SSH key for ansible"
+  value       = module.ssh.ansible_private_key
+  sensitive   = true
+}
+
 output "network_id" {
   description = "The ID of the private network"
   value       = module.vpc.network_id

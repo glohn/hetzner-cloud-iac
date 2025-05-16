@@ -13,6 +13,11 @@ variable "ssh_key_ids" {
   type        = map(string)
 }
 
+variable "ansible_public_key" {
+  description = "Public SSH key for ansible"
+  type        = string
+}
+
 variable "network_id" {
   description = "The ID of the private network"
   type        = string

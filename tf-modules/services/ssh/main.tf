@@ -4,3 +4,12 @@ resource "hcloud_ssh_key" "ssh_keys" {
   public_key = each.value
 }
 
+resource "tls_private_key" "ansible_ssh" {
+  algorithm = "ED25519"
+}
+
+resource "hcloud_ssh_key" "ansible_ssh_key" {
+  name       = "ansible_ssh_key"
+  public_key = tls_private_key.ansible_ssh.public_key_openssh
+}
+
