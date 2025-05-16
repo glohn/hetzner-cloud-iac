@@ -1,5 +1,7 @@
 data "cloudinit_config" "user-data-sw-web" {
-  for_each = { for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i }
+  for_each = var.server_type_sw_web != null ? {
+    for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i
+  } : {}
 
   part {
     content_type = "text/x-shellscript"
@@ -8,13 +10,9 @@ data "cloudinit_config" "user-data-sw-web" {
 }
 
 resource "hcloud_server" "vm-sw-web" {
-  for_each = { for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i }
-
-  lifecycle {
-    ignore_changes = [
-      user_data
-    ]
-  }
+  for_each = var.server_type_sw_web != null ? {
+    for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i
+  } : {}
 
   name        = "${var.project}-web${each.value + 1}"
   server_type = var.server_type_sw_web
@@ -22,16 +20,23 @@ resource "hcloud_server" "vm-sw-web" {
   location    = var.location
   ssh_keys    = values(var.ssh_key_ids)
   backups     = true
+
   public_net {
     ipv4_enabled = true
     ipv6_enabled = false
+  }
+
+  lifecycle {
+    ignore_changes = [user_data]
   }
 
   user_data = data.cloudinit_config.user-data-sw-web[each.key].rendered
 }
 
 resource "hcloud_server_network" "vm_sw_web_network" {
-  for_each = { for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i }
+  for_each = var.server_type_sw_web != null ? {
+    for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i
+  } : {}
 
   server_id  = hcloud_server.vm-sw-web[each.key].id
   network_id = var.network_id
