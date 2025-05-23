@@ -7,7 +7,7 @@ locals {
   ))
 }
 
-resource "hcloud_firewall_attachment" "fw-ssh" {
+resource "hcloud_firewall_attachment" "fw-vm-ssh" {
   firewall_id = var.firewall_id_ssh
   server_ids  = local.server_ids_all
 }

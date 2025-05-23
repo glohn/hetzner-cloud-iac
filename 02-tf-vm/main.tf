@@ -44,7 +44,7 @@ module "server" {
   ansible_public_key_id   = data.terraform_remote_state.tfstate-base.outputs.ansible_public_key_ids
   ansible_private_key     = data.terraform_remote_state.tfstate-base.outputs.ansible_private_key
   network_id              = data.terraform_remote_state.tfstate-base.outputs.network_id
-  firewall_id_ssh         = data.terraform_remote_state.tfstate-base.outputs.firewall_id_ssh
+  firewall_id_ssh         = data.terraform_remote_state.tfstate-base.outputs.firewall_id_vm_ssh
   server_type_bastion     = var.server_type_bastion
   server_type_sw_web      = var.server_type_sw_web
   server_type_sw_admin    = var.server_type_sw_admin

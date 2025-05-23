@@ -40,6 +40,8 @@ module "redis" {
   ansible_public_key_id = module.ssh.ansible_public_key
   ansible_private_key   = module.ssh.ansible_private_key
   network_id            = module.vpc.network_id
+  firewall_id_ssh       = module.firewall.firewall_id_services_ssh
+  firewall_id_redis     = module.firewall.firewall_id_redis
   server_type_redis     = var.server_type_redis
 }
 
@@ -51,13 +53,22 @@ module "redis" {
 module "firewall" {
   source = "../tf-modules/global/firewall"
 
-  project                 = local.project
-  subnet_cidrs            = module.vpc.subnet_cidrs
-  allowed_ssh_ips         = var.allowed_ssh_ips
-  server_id_rabbitmq      = try(module.rabbitmq.server_id_rabbitmq, [])
-  server_id_rds           = try(module.rds.server_id_rds, [])
-  server_id_redis         = try(module.redis.server_id_redis, [])
-  server_id_elasticsearch = try(module.elasticsearch.server_id_elasticsearch, [])
+  project         = local.project
+  subnet_cidrs    = module.vpc.subnet_cidrs
+  allowed_ssh_ips = var.allowed_ssh_ips
+}
+
+module "firewall-attachment-ssh" {
+  source                   = "../tf-modules/global/firewall-attachment-ssh"
+  firewall_id_services_ssh = module.firewall.firewall_id_services_ssh
+  server_type_elasticearch = var.server_type_elasticsearch
+  server_type_rabbitmq     = var.server_type_rabbitmq
+  server_type_rds          = var.server_type_rds
+  server_type_redis        = var.server_type_redis
+  server_id_elasticsearch  = try(module.elasticsearch[0].server_id_elasticsearch, [])
+  server_id_rabbitmq       = try(module.rabbitmq[0].server_id_rabbitmq, [])
+  server_id_rds            = try(module.rds[0].server_id_rds, [])
+  server_id_redis          = try(module.redis[0].server_id_redis, [])
 }
 
 

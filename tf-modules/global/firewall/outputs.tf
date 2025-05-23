@@ -1,5 +1,15 @@
-output "firewall_id_ssh" {
-  description = "The ID of the SSH firewall"
-  value       = hcloud_firewall.fw-ssh.id
+output "firewall_id_vm_ssh" {
+  description = "The ID of the SSH firewall for vms"
+  value       = hcloud_firewall.fw-vm-ssh.id
+}
+
+output "firewall_id_services_ssh" {
+  description = "The ID of the SSH firewall for services"
+  value       = hcloud_firewall.fw-services-ssh.id
+}
+
+output "firewall_id_redis" {
+  description = "The ID of the Redis firewall"
+  value       = hcloud_firewall.fw-redis.id
 }
 

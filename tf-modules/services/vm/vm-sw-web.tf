@@ -39,7 +39,6 @@ resource "hcloud_server_network" "vm_sw_web_network" {
   for_each = var.server_type_sw_web != null ? {
     for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i
   } : {}
-
   server_id  = hcloud_server.vm-sw-web[each.key].id
   network_id = var.network_id
 }

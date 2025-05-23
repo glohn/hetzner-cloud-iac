@@ -1,5 +1,5 @@
-#output "server_id_redis" {
-#  description = "ID of the redis server"
-#  value       = [for i in range(var.server_type_redis != null ? 1 : 0) : hcloud_server.vm-redis[i].id]
-#}
+output "server_id_redis" {
+  description = "ID of the redis server"
+  value       = var.server_type_redis != null ? [hcloud_server.vm-redis[0].id] : []
+}
 

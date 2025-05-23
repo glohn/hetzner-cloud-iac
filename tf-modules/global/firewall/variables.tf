@@ -13,30 +13,6 @@ variable "allowed_ssh_ips" {
   type        = list(string)
 }
 
-variable "server_id_rabbitmq" {
-  description = "IDs of the servers"
-  type        = list(string)
-  default     = []
-}
-
-variable "server_id_rds" {
-  description = "IDs of the servers"
-  type        = list(string)
-  default     = []
-}
-
-variable "server_id_redis" {
-  description = "IDs of the servers"
-  type        = list(string)
-  default     = []
-}
-
-variable "server_id_elasticsearch" {
-  description = "IDs of the servers"
-  type        = list(string)
-  default     = []
-}
-
 variable "ssh_port" {
   description = "Port for ssh service"
   type        = string
