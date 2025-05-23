@@ -20,7 +20,7 @@ resource "hcloud_server" "vm-pim" {
   server_type = var.server_type_pim
   image       = "debian-12"
   location    = var.location
-  ssh_keys    = values(var.ssh_key_ids)
+  ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
   backups     = true
   public_net {
     ipv4_enabled = true

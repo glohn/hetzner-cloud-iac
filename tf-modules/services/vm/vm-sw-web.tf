@@ -14,20 +14,21 @@ resource "hcloud_server" "vm-sw-web" {
     for i in range(var.number_instances_sw_web) : "vm_sw_web_${i}" => i
   } : {}
 
+  lifecycle {
+    ignore_changes = [
+      user_data
+    ]
+  }
+
   name        = "${var.project}-web${each.value + 1}"
   server_type = var.server_type_sw_web
   image       = "debian-12"
   location    = var.location
-  ssh_keys    = values(var.ssh_key_ids)
+  ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
   backups     = true
-
   public_net {
     ipv4_enabled = true
     ipv6_enabled = false
-  }
-
-  lifecycle {
-    ignore_changes = [user_data]
   }
 
   user_data = data.cloudinit_config.user-data-sw-web[each.key].rendered

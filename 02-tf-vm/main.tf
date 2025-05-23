@@ -41,7 +41,8 @@ module "server" {
   project                 = local.project
   location                = local.location
   ssh_key_ids             = data.terraform_remote_state.tfstate-base.outputs.ssh_key_ids
-  ansible_public_key      = data.terraform_remote_state.tfstate-base.outputs.ansible_public_key
+  ansible_public_key_id   = data.terraform_remote_state.tfstate-base.outputs.ansible_public_key_ids
+  ansible_private_key     = data.terraform_remote_state.tfstate-base.outputs.ansible_private_key
   network_id              = data.terraform_remote_state.tfstate-base.outputs.network_id
   firewall_id_ssh         = data.terraform_remote_state.tfstate-base.outputs.firewall_id_ssh
   server_type_bastion     = var.server_type_bastion
