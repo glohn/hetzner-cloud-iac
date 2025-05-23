@@ -12,7 +12,8 @@ resource "hcloud_server" "vm-pim" {
 
   lifecycle {
     ignore_changes = [
-      user_data
+      user_data,
+      ssh_keys
     ]
   }
 

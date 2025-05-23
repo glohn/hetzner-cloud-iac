@@ -32,15 +32,15 @@ module "rds" {
 }
 
 module "redis" {
-  source              = "../tf-modules/data-stores/redis"
-  count               = var.server_type_redis != null ? 1 : 0
-  project             = local.project
-  location            = local.location
-  ssh_key_ids         = module.ssh.ssh_key_ids
-  ansible_public_key  = module.ssh.ansible_public_key
-  ansible_private_key = module.ssh.ansible_private_key
-  server_type_redis   = var.server_type_redis
-  network_id          = module.vpc.network_id
+  source                = "../tf-modules/data-stores/redis"
+  count                 = var.server_type_redis != null ? 1 : 0
+  project               = local.project
+  location              = local.location
+  ssh_key_ids           = module.ssh.ssh_key_ids
+  ansible_public_key_id = module.ssh.ansible_public_key
+  ansible_private_key   = module.ssh.ansible_private_key
+  network_id            = module.vpc.network_id
+  server_type_redis     = var.server_type_redis
 }
 
 

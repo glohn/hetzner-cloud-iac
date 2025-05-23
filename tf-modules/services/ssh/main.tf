@@ -10,6 +10,6 @@ resource "tls_private_key" "ansible_ssh" {
 
 resource "hcloud_ssh_key" "ansible_ssh_key" {
   name       = "ansible_ssh_key"
-  public_key = tls_private_key.ansible_ssh.public_key_openssh
+  public_key = "${tls_private_key.ansible_ssh.public_key_openssh} Ansible Key"
 }
 
