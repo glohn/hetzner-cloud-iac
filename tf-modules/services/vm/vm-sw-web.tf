@@ -16,7 +16,8 @@ resource "hcloud_server" "vm-sw-web" {
 
   lifecycle {
     ignore_changes = [
-      user_data
+      user_data,
+      ssh_keys
     ]
   }
 

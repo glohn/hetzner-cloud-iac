@@ -9,6 +9,13 @@
 resource "hcloud_server" "vm-bastion" {
   count = var.server_type_bastion != null ? 1 : 0
 
+  lifecycle {
+    ignore_changes = [
+      user_data,
+      ssh_keys
+    ]
+  }
+
   name        = "${var.project}-bastion"
   server_type = var.server_type_bastion
   image       = "debian-12"
