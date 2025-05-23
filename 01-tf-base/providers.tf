@@ -14,6 +14,9 @@ terraform {
     template = {
       source = "hashicorp/template"
     }
+    null = {
+      source = "hashicorp/null"
+    }
   }
 
   backend "s3" {

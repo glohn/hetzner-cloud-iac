@@ -1,19 +1,56 @@
 ---
-- name: Install Redis
+- name: Install Redis from redis.io
   hosts: all
-  become: yes
+  become: true
+  vars:
+    redis_bind_ip: "{{ redis_bind_ip }}"
+
   tasks:
-    - name: Update and upgrade apt packages
+    - name: Download Redis GPG key (ASCII format)
+      get_url:
+        url: https://packages.redis.io/gpg
+        dest: /tmp/redis.gpg
+        mode: '0644'
+
+    - name: Convert Redis GPG key to binary and move to keyrings dir
+      shell: |
+        gpg --dearmor -o /etc/apt/keyrings/redis-archive-keyring.gpg /tmp/redis.gpg
+      args:
+        creates: /etc/apt/keyrings/redis-archive-keyring.gpg
+
+    - name: Add Redis APT repository with signed-by
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb {{ ansible_distribution_release | lower }} main"
+        filename: redis
+        state: present
+
+    - name: Update APT cache
       apt:
         update_cache: yes
-        upgrade: dist
 
     - name: Install Redis
       apt:
-        name: redis-server
+        name: redis
         state: present
 
-    - name: Ensure Redis is running
+    - name: Configure Redis to bind only to the provided IP
+      lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: '^bind\s+.*'
+        line: "bind {{ redis_bind_ip }}"
+        state: present
+        backup: yes
+
+    - name: Ensure protected-mode is enabled
+      lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: '^protected-mode\s+.*'
+        line: "protected-mode yes"
+        state: present
+
+    - name: Restart and enable Redis
       service:
         name: redis-server
-        state: started 
+        state: restarted
+        enabled: true
+

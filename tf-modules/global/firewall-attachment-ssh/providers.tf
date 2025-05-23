@@ -3,9 +3,6 @@ terraform {
     hcloud = {
       source = "hetznercloud/hcloud"
     }
-    null = {
-      source = "hashicorp/null"
-    }
   }
 }
 

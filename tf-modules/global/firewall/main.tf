@@ -1,5 +1,22 @@
-resource "hcloud_firewall" "fw-ssh" {
-  name = "${var.project}-fw-ssh"
+resource "hcloud_firewall" "fw-vm-ssh" {
+  name = "${var.project}-fw-vm-ssh"
+
+  rule {
+    direction  = "in"
+    protocol   = "icmp"
+    source_ips = var.allowed_ssh_ips
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = var.ssh_port
+    source_ips = var.allowed_ssh_ips
+  }
+}
+
+resource "hcloud_firewall" "fw-services-ssh" {
+  name = "${var.project}-fw-services-ssh"
 
   rule {
     direction  = "in"
