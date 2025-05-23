@@ -4,7 +4,7 @@ output "ssh_key_ids" {
 }
 
 output "ansible_public_key" {
-  value = tls_private_key.ansible_ssh.public_key_pem
+  value = hcloud_ssh_key.ansible_ssh_key.id
 }
 
 output "ansible_private_key" {
