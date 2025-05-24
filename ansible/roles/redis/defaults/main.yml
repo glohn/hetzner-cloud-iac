@@ -1,0 +1,8 @@
+---
+# Redis configuration
+redis_bind_ip: "{{ ansible_default_ipv4.address }}"
+
+# Repository configuration
+redis_repo_key_url: "https://packages.redis.io/gpg"
+redis_repo_url: "deb [signed-by=/etc/apt/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb {{ ansible_distribution_release | lower }} main"
+

@@ -48,19 +48,19 @@ variable "number_instances_sw_web" {
 }
 
 variable "server_ids_sw_web" {
-  description = "IDs of the Shopware web servers"
+  description = "IDs of the Shopware web servers (needed for load balancer targets)"
   type        = list(string)
   default     = null
 }
 
 variable "server_id_sw_admin" {
-  description = "ID of the Shopware adminserver"
+  description = "ID of the Shopware adminserver (needed for load balancer targets)"
   type        = list(string)
   default     = null
 }
 
 variable "server_id_pim" {
-  description = "ID of the pimcore server"
+  description = "ID of the pimcore server (needed for load balancer targets)"
   type        = list(string)
   default     = null
 }

@@ -1,0 +1,10 @@
+---
+- name: Deploy Elasticsearch Stack
+  hosts: all
+  become: true
+  vars:
+    elasticsearch_bind_ip: "{{ elasticsearch_bind_ip }}"
+
+  roles:
+    - elasticsearch
+

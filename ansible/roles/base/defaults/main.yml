@@ -1,0 +1,4 @@
+---
+# Base role defaults
+base_timezone: "Europe/Berlin"
+

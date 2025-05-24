@@ -28,11 +28,6 @@ variable "network_id" {
   type        = string
 }
 
-variable "firewall_id_ssh" {
-  description = "The ID of the ssh firewall rule"
-  type        = string
-}
-
 variable "firewall_id_redis" {
   description = "The ID of the Redis firewall rule"
   type        = string

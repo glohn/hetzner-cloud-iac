@@ -41,6 +41,13 @@ resource "hcloud_firewall" "fw-elasticsearch" {
     port       = var.elastic_port
     source_ips = var.subnet_cidrs
   }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = var.elastic_dashboard_port
+    source_ips = var.allowed_ssh_ips
+  }
 }
 
 resource "hcloud_firewall" "fw-rabbitmq" {

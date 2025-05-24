@@ -1,0 +1,11 @@
+---
+# Elasticsearch configuration
+elasticsearch_bind_ip: "{{ ansible_default_ipv4.address }}"
+
+# Kibana configuration
+install_kibana: true
+
+# Repository configuration
+elastic_repo_key_url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+elastic_repo_url: "deb [signed-by=/etc/apt/keyrings/elasticsearch-archive-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main"
+

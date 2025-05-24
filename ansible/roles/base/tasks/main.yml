@@ -1,0 +1,98 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Upgrade all packages
+  apt:
+    upgrade: dist
+    autoremove: yes
+    autoclean: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+- name: Install base packages
+  apt:
+    name:
+      - apt-transport-https
+      - cron
+      - dnsutils
+      - fail2ban
+      - git
+      - gnupg1
+      - gnupg2
+      - htop
+      - iftop
+      - iotop
+      - logrotate
+      - lsof
+      - ncdu
+      - net-tools
+      - nmon
+      - ntp
+      - pwgen
+      - redis-tools
+      - rsync
+      - screen
+      - sysstat
+      - tmux
+      - tree
+      - unrar-free
+      - unzip
+    state: present
+
+- name: Set timezone to Europe/Berlin
+  timezone:
+    name: Europe/Berlin
+
+- name: Configure root .bashrc - enable LS_OPTIONS export
+  lineinfile:
+    path: /root/.bashrc
+    regexp: '^# export LS_OPTIONS'
+    line: "export LS_OPTIONS='--color=auto'"
+
+- name: Configure root .bashrc - enable dircolors eval
+  lineinfile:
+    path: /root/.bashrc
+    regexp: '^# eval "\$\(dircolors\)"'
+    line: 'eval "$(dircolors)"'
+
+- name: Configure root .bashrc - enable ls alias
+  lineinfile:
+    path: /root/.bashrc
+    regexp: '^# alias ls='
+    line: "alias ls='ls $LS_OPTIONS'"
+
+- name: Configure root .bashrc - enable ll alias
+  lineinfile:
+    path: /root/.bashrc
+    regexp: '^# alias ll='
+    line: "alias ll='ls $LS_OPTIONS -lah'"
+
+- name: Remove ClientAliveInterval from SSH config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^ClientAliveInterval 120'
+    state: absent
+
+- name: Add bash history and completion configuration to .bashrc
+  blockinfile:
+    path: /root/.bashrc
+    block: |
+      HISTTIMEFORMAT="%F - %T "
+      HISTSIZE=100000
+
+      # enable programmable completion features (you don't need to enable
+      # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+      # sources /etc/bash.bashrc).
+      if ! shopt -oq posix; then
+        if [ -f /usr/share/bash-completion/bash_completion ]; then
+          . /usr/share/bash-completion/bash_completion
+        elif [ -f /etc/bash_completion ]; then
+          . /etc/bash_completion
+        fi
+      fi
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Base Configuration"
+    create: yes
+

@@ -1,0 +1,40 @@
+---
+- name: Install Kibana
+  apt:
+    name: kibana
+    state: present
+
+- name: Configure Kibana server host
+  lineinfile:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?\s*server\.host:.*'
+    line: "server.host: 0.0.0.0"
+    state: present
+    backup: yes
+  register: kibana_server_config
+  notify: restart kibana
+
+- name: Configure Kibana server port
+  lineinfile:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?\s*server\.port:.*'
+    line: "server.port: 5601"
+    state: present
+  register: kibana_port_config
+  notify: restart kibana
+
+- name: Configure Elasticsearch connection
+  lineinfile:
+    path: /etc/kibana/kibana.yml
+    regexp: '^#?\s*elasticsearch\.hosts:.*'
+    line: "elasticsearch.hosts: ['http://localhost:9200']"
+    state: present
+  register: kibana_elasticsearch_config
+  notify: restart kibana
+
+- name: Start and enable Kibana
+  service:
+    name: kibana
+    state: started
+    enabled: true
+

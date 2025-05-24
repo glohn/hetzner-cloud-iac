@@ -1,0 +1,15 @@
+---
+- name: Apply base system configuration
+  include_role:
+    name: base
+
+- name: Setup Elasticsearch repository
+  include_tasks: repository.yml
+
+- name: Install and configure Elasticsearch
+  include_tasks: elasticsearch.yml
+
+- name: Install and configure Kibana
+  include_tasks: kibana.yml
+  when: install_kibana | default(true)
+

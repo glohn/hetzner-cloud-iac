@@ -1,24 +1,7 @@
 locals {
   project  = data.terraform_remote_state.tfstate-tfstate.outputs.project
   location = data.terraform_remote_state.tfstate-tfstate.outputs.location
-
-  # Safe, static keys: server type => server id
-  server_ids_map = merge(
-    var.server_type_elasticsearch != null ? {
-      "elasticsearch" = module.elasticsearch[0].server_id_elasticsearch
-    } : {},
-    var.server_type_rabbitmq != null ? {
-      "rabbitmq" = module.rabbitmq[0].server_id_rabbitmq
-    } : {},
-    var.server_type_rds != null ? {
-      "rds" = module.rds[0].server_id_rds
-    } : {},
-    var.server_type_redis != null ? {
-      "redis" = module.redis[0].server_id_redis
-    } : {}
-  )
 }
-
 
 
 ###########
@@ -57,7 +40,6 @@ module "redis" {
   ansible_public_key_id = module.ssh.ansible_public_key
   ansible_private_key   = module.ssh.ansible_private_key
   network_id            = module.vpc.network_id
-  firewall_id_ssh       = module.firewall.firewall_id_services_ssh
   firewall_id_redis     = module.firewall.firewall_id_redis
   server_type_redis     = var.server_type_redis
 }
@@ -78,7 +60,6 @@ module "firewall" {
 module "firewall-attachment-ssh" {
   source                   = "../tf-modules/global/firewall-attachment-ssh"
   firewall_id_services_ssh = module.firewall.firewall_id_services_ssh
-  server_ids               = local.server_ids_map
 }
 
 
@@ -94,14 +75,13 @@ module "certificate" {
 
 module "elasticsearch" {
   source                    = "../tf-modules/services/elasticsearch"
-  count                     = var.server_type_redis != null ? 1 : 0
+  count                     = var.server_type_elasticsearch != null ? 1 : 0
   project                   = local.project
   location                  = local.location
   ssh_key_ids               = module.ssh.ssh_key_ids
   ansible_public_key_id     = module.ssh.ansible_public_key
   ansible_private_key       = module.ssh.ansible_private_key
   network_id                = module.vpc.network_id
-  firewall_id_ssh           = module.firewall.firewall_id_services_ssh
   firewall_id_elasticsearch = module.firewall.firewall_id_elasticsearch
   server_type_elasticsearch = var.server_type_elasticsearch
 }

@@ -15,6 +15,11 @@ resource "hcloud_server" "vm-redis" {
   ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
   backups     = true
 
+  labels = {
+    service-type = "redis"
+    environment  = var.project
+  }
+
   public_net {
     ipv4_enabled = true
     ipv6_enabled = false
@@ -48,24 +53,24 @@ resource "null_resource" "ansible_provision" {
     command = <<-EOT
       set -e
 
-      echo '${var.ansible_private_key}' > /tmp/ansible_key
-      chmod 600 /tmp/ansible_key
+      echo '${var.ansible_private_key}' > /tmp/ansible_key_redis
+      chmod 600 /tmp/ansible_key_redis
 
-      SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/playbooks/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
+      ANSIBLE_LOG_PATH=/tmp/ansible-redis.log SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
       ansible-playbook -i '${hcloud_server.vm-redis[0].ipv4_address},' \
-      --private-key=/tmp/ansible_key -u root \
+      --private-key=/tmp/ansible_key_redis -u root \
       --extra-vars="redis_bind_ip=${hcloud_server_network.vm_redis_network[0].ip}" \
-      ../ansible/playbooks/install_redis.yml
+      ../ansible/redis.yml
 
-      if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key -o StrictHostKeyChecking=no \
-        /tmp/ansible.log root@${hcloud_server.vm-redis[0].ipv4_address}:/var/log/ansible.log; then
+      if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key_redis -o StrictHostKeyChecking=no \
+        /tmp/ansible-redis.log root@${hcloud_server.vm-redis[0].ipv4_address}:/var/log/ansible.log; then
         echo "Log copied successfully, cleaning up"
-        rm -f /tmp/ansible.log
+        rm -f /tmp/ansible-redis.log
       else
-        echo "ERROR: Log copy failed – keeping local /tmp/ansible.log"
+        echo "ERROR: Log copy failed – keeping local /tmp/ansible-redis.log"
       fi
 
-      rm -f /tmp/ansible_key
+      rm -f /tmp/ansible_key_redis
     EOT
   }
 
