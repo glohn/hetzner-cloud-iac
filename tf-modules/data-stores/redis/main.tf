@@ -51,13 +51,13 @@ resource "null_resource" "ansible_provision" {
       echo '${var.ansible_private_key}' > /tmp/ansible_key
       chmod 600 /tmp/ansible_key
 
-      ANSIBLE_CONFIG=../ansible/playbooks/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
+      SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/playbooks/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
       ansible-playbook -i '${hcloud_server.vm-redis[0].ipv4_address},' \
       --private-key=/tmp/ansible_key -u root \
       --extra-vars="redis_bind_ip=${hcloud_server_network.vm_redis_network[0].ip}" \
       ../ansible/playbooks/install_redis.yml
 
-      if scp -i /tmp/ansible_key -o StrictHostKeyChecking=no \
+      if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key -o StrictHostKeyChecking=no \
         /tmp/ansible.log root@${hcloud_server.vm-redis[0].ipv4_address}:/var/log/ansible.log; then
         echo "Log copied successfully, cleaning up"
         rm -f /tmp/ansible.log
