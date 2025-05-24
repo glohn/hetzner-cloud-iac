@@ -8,6 +8,11 @@ output "firewall_id_services_ssh" {
   value       = hcloud_firewall.fw-services-ssh.id
 }
 
+output "firewall_id_elasticsearch" {
+  description = "The ID of the Elasticsearch firewall"
+  value       = hcloud_firewall.fw-elasticsearch.id
+}
+
 output "firewall_id_redis" {
   description = "The ID of the Redis firewall"
   value       = hcloud_firewall.fw-redis.id

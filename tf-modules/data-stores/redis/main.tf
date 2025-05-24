@@ -72,8 +72,3 @@ resource "null_resource" "ansible_provision" {
   depends_on = [null_resource.wait_for_ssh]
 }
 
-output "redis_private_ip" {
-  value       = hcloud_server_network.vm_redis_network[0].ip
-  description = "The private network IP of the Redis server"
-}
-

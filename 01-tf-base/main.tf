@@ -81,19 +81,6 @@ module "firewall-attachment-ssh" {
   server_ids               = local.server_ids_map
 }
 
-#module "firewall-attachment-ssh" {
-#  source                   = "../tf-modules/global/firewall-attachment-ssh"
-#  firewall_id_services_ssh = module.firewall.firewall_id_services_ssh
-#  server_type_elasticearch = var.server_type_elasticsearch
-#  server_type_rabbitmq     = var.server_type_rabbitmq
-#  server_type_rds          = var.server_type_rds
-#  server_type_redis        = var.server_type_redis
-#  server_id_elasticsearch  = try(module.elasticsearch[0].server_id_elasticsearch, [])
-#  server_id_rabbitmq       = try(module.rabbitmq[0].server_id_rabbitmq, [])
-#  server_id_rds            = try(module.rds[0].server_id_rds, [])
-#  server_id_redis          = try(module.redis[0].server_id_redis, [])
-#}
-
 
 ################
 ### Services ###
@@ -107,13 +94,16 @@ module "certificate" {
 
 module "elasticsearch" {
   source                    = "../tf-modules/services/elasticsearch"
-  count                     = var.server_type_elasticsearch != null ? 1 : 0
+  count                     = var.server_type_redis != null ? 1 : 0
   project                   = local.project
   location                  = local.location
   ssh_key_ids               = module.ssh.ssh_key_ids
-  ansible_public_key        = module.ssh.ansible_public_key
-  server_type_elasticsearch = var.server_type_elasticsearch
+  ansible_public_key_id     = module.ssh.ansible_public_key
+  ansible_private_key       = module.ssh.ansible_private_key
   network_id                = module.vpc.network_id
+  firewall_id_ssh           = module.firewall.firewall_id_services_ssh
+  firewall_id_elasticsearch = module.firewall.firewall_id_elasticsearch
+  server_type_elasticsearch = var.server_type_elasticsearch
 }
 
 module "rabbitmq" {
