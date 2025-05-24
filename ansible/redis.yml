@@ -1,0 +1,10 @@
+---
+- name: Deploy Redis
+  hosts: all
+  become: true
+  vars:
+    redis_bind_ip: "{{ redis_bind_ip }}"
+
+  roles:
+    - redis
+

@@ -27,6 +27,14 @@ resource "hcloud_server" "vm-sw-web" {
   location    = var.location
   ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
   backups     = true
+  
+  labels = {
+    service-type = "vm"
+    vm-role      = "web-service"
+    environment  = var.project
+    instance     = tostring(each.value + 1)
+  }
+  
   public_net {
     ipv4_enabled = true
     ipv6_enabled = false

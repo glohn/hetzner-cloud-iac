@@ -1,0 +1,23 @@
+---
+- name: Download Elasticsearch GPG key (ASCII format)
+  get_url:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    dest: /tmp/elasticsearch.gpg
+    mode: '0644'
+
+- name: Convert Elasticsearch GPG key to binary and move to keyrings dir
+  shell: |
+    gpg --dearmor -o /etc/apt/keyrings/elasticsearch-archive-keyring.gpg /tmp/elasticsearch.gpg
+  args:
+    creates: /etc/apt/keyrings/elasticsearch-archive-keyring.gpg
+
+- name: Add Elasticsearch APT repository with signed-by
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/elasticsearch-archive-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main"
+    filename: elasticsearch
+    state: present
+
+- name: Update APT cache
+  apt:
+    update_cache: yes
+

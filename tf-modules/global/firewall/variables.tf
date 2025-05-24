@@ -25,6 +25,12 @@ variable "elastic_port" {
   default     = "9200"
 }
 
+variable "elastic_dashboard_port" {
+  description = "Port for elasticsearch dashboard"
+  type        = string
+  default     = "5601"
+}
+
 variable "http_port" {
   description = "Port for http service"
   type        = string
