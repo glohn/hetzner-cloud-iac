@@ -8,7 +8,7 @@ output "ansible_public_key" {
 }
 
 output "ansible_private_key" {
-  value     = tls_private_key.ansible_ssh.private_key_pem
+  value     = tls_private_key.ansible_ssh.private_key_openssh
   sensitive = true
 }
 

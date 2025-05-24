@@ -1,7 +1,24 @@
 locals {
   project  = data.terraform_remote_state.tfstate-tfstate.outputs.project
   location = data.terraform_remote_state.tfstate-tfstate.outputs.location
+
+  # Safe, static keys: server type => server id
+  server_ids_map = merge(
+    var.server_type_elasticsearch != null ? {
+      "elasticsearch" = module.elasticsearch[0].server_id_elasticsearch
+    } : {},
+    var.server_type_rabbitmq != null ? {
+      "rabbitmq" = module.rabbitmq[0].server_id_rabbitmq
+    } : {},
+    var.server_type_rds != null ? {
+      "rds" = module.rds[0].server_id_rds
+    } : {},
+    var.server_type_redis != null ? {
+      "redis" = module.redis[0].server_id_redis
+    } : {}
+  )
 }
+
 
 
 ###########
@@ -61,15 +78,21 @@ module "firewall" {
 module "firewall-attachment-ssh" {
   source                   = "../tf-modules/global/firewall-attachment-ssh"
   firewall_id_services_ssh = module.firewall.firewall_id_services_ssh
-  server_type_elasticearch = var.server_type_elasticsearch
-  server_type_rabbitmq     = var.server_type_rabbitmq
-  server_type_rds          = var.server_type_rds
-  server_type_redis        = var.server_type_redis
-  server_id_elasticsearch  = try(module.elasticsearch[0].server_id_elasticsearch, [])
-  server_id_rabbitmq       = try(module.rabbitmq[0].server_id_rabbitmq, [])
-  server_id_rds            = try(module.rds[0].server_id_rds, [])
-  server_id_redis          = try(module.redis[0].server_id_redis, [])
+  server_ids               = local.server_ids_map
 }
+
+#module "firewall-attachment-ssh" {
+#  source                   = "../tf-modules/global/firewall-attachment-ssh"
+#  firewall_id_services_ssh = module.firewall.firewall_id_services_ssh
+#  server_type_elasticearch = var.server_type_elasticsearch
+#  server_type_rabbitmq     = var.server_type_rabbitmq
+#  server_type_rds          = var.server_type_rds
+#  server_type_redis        = var.server_type_redis
+#  server_id_elasticsearch  = try(module.elasticsearch[0].server_id_elasticsearch, [])
+#  server_id_rabbitmq       = try(module.rabbitmq[0].server_id_rabbitmq, [])
+#  server_id_rds            = try(module.rds[0].server_id_rds, [])
+#  server_id_redis          = try(module.redis[0].server_id_redis, [])
+#}
 
 
 ################
