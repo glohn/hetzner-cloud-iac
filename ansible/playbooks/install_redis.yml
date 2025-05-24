@@ -5,6 +5,12 @@
   vars:
     redis_bind_ip: "{{ redis_bind_ip }}"
 
+  handlers:
+    - name: restart redis
+      service:
+        name: redis-server
+        state: restarted
+
   tasks:
     - name: Download Redis GPG key (ASCII format)
       get_url:
@@ -37,9 +43,10 @@
       lineinfile:
         path: /etc/redis/redis.conf
         regexp: '^bind\s+.*'
-        line: "bind {{ redis_bind_ip }}"
+        line: "bind 127.0.0.1 {{ redis_bind_ip }}"
         state: present
         backup: yes
+      register: redis_bind
 
     - name: Ensure protected-mode is enabled
       lineinfile:
@@ -47,10 +54,17 @@
         regexp: '^protected-mode\s+.*'
         line: "protected-mode yes"
         state: present
+      register: protected_mode
 
-    - name: Restart and enable Redis
+    - name: Restart Redis if config changed
       service:
         name: redis-server
         state: restarted
+      when: redis_bind.changed or protected_mode.changed
+
+    - name: Start and enable Redis
+      service:
+        name: redis-server
+        state: started
         enabled: true
 
