@@ -13,13 +13,23 @@ variable "ssh_key_ids" {
   type        = map(string)
 }
 
-variable "ansible_public_key" {
-  description = "Public SSH key for ansible"
+variable "ansible_public_key_id" {
+  description = "ID of the public SSH key for Ansible access"
+  type        = string
+}
+
+variable "ansible_private_key" {
+  description = "Private SSH key for Ansible access"
   type        = string
 }
 
 variable "network_id" {
   description = "The ID of the private network"
+  type        = string
+}
+
+variable "firewall_id_rabbitmq" {
+  description = "The ID of the RabbitMQ firewall rule"
   type        = string
 }
 
@@ -31,5 +41,11 @@ variable "server_type_rabbitmq" {
 variable "default_image" {
   description = "Default OS image to use for VMs"
   type        = string
+}
+
+variable "rabbitmq_admin_password" {
+  description = "Password for RabbitMQ admin user"
+  type        = string
+  sensitive   = true
 }
 

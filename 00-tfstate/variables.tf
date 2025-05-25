@@ -33,3 +33,21 @@ variable "s3_secret_key" {
   type        = string
 }
 
+variable "rabbitmq_admin_password" {
+  description = "RabbitMQ admin password (username will be project name)"
+  type        = string
+  sensitive   = true
+}
+
+variable "rds_root_password" {
+  description = "RDS root password"
+  type        = string
+  sensitive   = true
+}
+
+variable "rds_app_password" {
+  description = "RDS application password (username will be project name)"
+  type        = string
+  sensitive   = true
+}
+

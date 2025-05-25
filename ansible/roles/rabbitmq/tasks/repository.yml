@@ -1,0 +1,72 @@
+---
+- name: Install essential dependencies
+  apt:
+    name:
+      - curl
+      - gnupg
+      - apt-transport-https
+    state: present
+
+- name: Download Team RabbitMQ main signing key
+  get_url:
+    url: https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA
+    dest: /tmp/rabbitmq-team-key.asc
+    mode: '0644'
+
+- name: Add Team RabbitMQ main signing key to keyrings
+  shell: |
+    gpg --dearmor -o /usr/share/keyrings/com.rabbitmq.team.gpg /tmp/rabbitmq-team-key.asc
+  args:
+    creates: /usr/share/keyrings/com.rabbitmq.team.gpg
+
+- name: Download Cloudsmith RabbitMQ Erlang signing key
+  get_url:
+    url: https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key
+    dest: /tmp/rabbitmq-erlang-key.asc
+    mode: '0644'
+
+- name: Add Cloudsmith RabbitMQ Erlang signing key to keyrings
+  shell: |
+    gpg --dearmor -o /usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg /tmp/rabbitmq-erlang-key.asc
+  args:
+    creates: /usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg
+
+- name: Download Cloudsmith RabbitMQ Server signing key
+  get_url:
+    url: https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-server.9F4587F226208342.key
+    dest: /tmp/rabbitmq-server-key.asc
+    mode: '0644'
+
+- name: Add Cloudsmith RabbitMQ Server signing key to keyrings
+  shell: |
+    gpg --dearmor -o /usr/share/keyrings/rabbitmq.9F4587F226208342.gpg /tmp/rabbitmq-server-key.asc
+  args:
+    creates: /usr/share/keyrings/rabbitmq.9F4587F226208342.gpg
+
+- name: Add RabbitMQ repositories (official sources list)
+  copy:
+    dest: /etc/apt/sources.list.d/rabbitmq.list
+    content: |
+      ## Provides modern Erlang/OTP releases
+      ##
+      deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/debian bookworm main
+      deb-src [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/debian bookworm main
+
+      # another mirror for redundancy
+      deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/debian bookworm main
+      deb-src [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/debian bookworm main
+
+      ## Provides RabbitMQ
+      ##
+      deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-server/deb/debian bookworm main
+      deb-src [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-server/deb/debian bookworm main
+
+      # another mirror for redundancy
+      deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-server/deb/debian bookworm main
+      deb-src [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-server/deb/debian bookworm main
+    backup: yes
+
+- name: Update APT cache
+  apt:
+    update_cache: yes
+

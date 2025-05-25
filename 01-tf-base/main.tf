@@ -90,15 +90,18 @@ module "elasticsearch" {
 }
 
 module "rabbitmq" {
-  source               = "../tf-modules/services/rabbitmq"
-  count                = var.server_type_rabbitmq != null ? 1 : 0
-  project              = local.project
-  location             = local.location
-  ssh_key_ids          = module.ssh.ssh_key_ids
-  ansible_public_key   = module.ssh.ansible_public_key
-  server_type_rabbitmq = var.server_type_rabbitmq
-  network_id           = module.vpc.network_id
-  default_image        = var.default_image
+  source                    = "../tf-modules/services/rabbitmq"
+  count                     = var.server_type_rabbitmq != null ? 1 : 0
+  project                   = local.project
+  location                  = local.location
+  ssh_key_ids               = module.ssh.ssh_key_ids
+  ansible_public_key_id     = module.ssh.ansible_public_key
+  ansible_private_key       = module.ssh.ansible_private_key
+  network_id                = module.vpc.network_id
+  firewall_id_rabbitmq      = module.firewall.firewall_id_rabbitmq
+  server_type_rabbitmq      = var.server_type_rabbitmq
+  default_image             = var.default_image
+  rabbitmq_admin_password   = data.terraform_remote_state.tfstate-tfstate.outputs.rabbitmq_admin_password
 }
 
 module "ssh" {

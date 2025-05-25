@@ -1,0 +1,10 @@
+---
+- name: Deploy RabbitMQ
+  hosts: all
+  become: true
+  vars:
+    rabbitmq_bind_ip: "{{ rabbitmq_bind_ip }}"
+
+  roles:
+    - rabbitmq
+
