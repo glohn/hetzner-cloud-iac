@@ -23,8 +23,8 @@ resource "hcloud_firewall" "fw-http" {
 }
 
 resource "hcloud_firewall_attachment" "fw-http" {
-  count          = local.create_loadbalancer && local.has_servers ? 1 : 0
-  firewall_id    = hcloud_firewall.fw-http[0].id
+  count           = local.create_loadbalancer && local.has_servers ? 1 : 0
+  firewall_id     = hcloud_firewall.fw-http[0].id
   label_selectors = ["vm-role=web-service"]
 }
 

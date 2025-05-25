@@ -34,3 +34,8 @@ output "firewall_id_vm_ssh" {
   value       = module.firewall.firewall_id_vm_ssh
 }
 
+output "default_image" {
+  description = "Default OS image to use for all VMs"
+  value       = var.default_image
+}
+

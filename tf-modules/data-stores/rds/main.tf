@@ -18,7 +18,7 @@ resource "hcloud_server" "vm-rds" {
 
   name        = "${var.project}-rds"
   server_type = var.server_type_rds
-  image       = "debian-12"
+  image       = var.default_image
   location    = var.location
   ssh_keys    = values(var.ssh_key_ids)
   backups     = true

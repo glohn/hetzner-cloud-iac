@@ -19,17 +19,17 @@ resource "hcloud_server" "vm-sw-admin" {
 
   name        = "${var.project}-admin"
   server_type = var.server_type_sw_admin
-  image       = "debian-12"
+  image       = var.default_image
   location    = var.location
   ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
   backups     = true
-  
+
   labels = {
     service-type = "vm"
     vm-role      = "web-service"
     environment  = var.project
   }
-  
+
   public_net {
     ipv4_enabled = true
     ipv6_enabled = false

@@ -18,7 +18,7 @@ resource "hcloud_server" "vm-rabbitmq" {
 
   name        = "${var.project}-rabbitmq"
   server_type = var.server_type_rabbitmq
-  image       = "debian-12"
+  image       = var.default_image
   location    = var.location
   ssh_keys    = values(var.ssh_key_ids)
   backups     = true

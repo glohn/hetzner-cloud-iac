@@ -23,18 +23,18 @@ resource "hcloud_server" "vm-sw-web" {
 
   name        = "${var.project}-web${each.value + 1}"
   server_type = var.server_type_sw_web
-  image       = "debian-12"
+  image       = var.default_image
   location    = var.location
   ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
   backups     = true
-  
+
   labels = {
     service-type = "vm"
     vm-role      = "web-service"
     environment  = var.project
     instance     = tostring(each.value + 1)
   }
-  
+
   public_net {
     ipv4_enabled = true
     ipv6_enabled = false
