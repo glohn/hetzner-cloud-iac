@@ -29,6 +29,7 @@ module "rds" {
   ansible_public_key = module.ssh.ansible_public_key
   server_type_rds    = var.server_type_rds
   network_id         = module.vpc.network_id
+  default_image      = var.default_image
 }
 
 module "redis" {
@@ -42,6 +43,7 @@ module "redis" {
   network_id            = module.vpc.network_id
   firewall_id_redis     = module.firewall.firewall_id_redis
   server_type_redis     = var.server_type_redis
+  default_image         = var.default_image
 }
 
 
@@ -84,6 +86,7 @@ module "elasticsearch" {
   network_id                = module.vpc.network_id
   firewall_id_elasticsearch = module.firewall.firewall_id_elasticsearch
   server_type_elasticsearch = var.server_type_elasticsearch
+  default_image             = var.default_image
 }
 
 module "rabbitmq" {
@@ -95,6 +98,7 @@ module "rabbitmq" {
   ansible_public_key   = module.ssh.ansible_public_key
   server_type_rabbitmq = var.server_type_rabbitmq
   network_id           = module.vpc.network_id
+  default_image        = var.default_image
 }
 
 module "ssh" {

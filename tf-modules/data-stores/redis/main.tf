@@ -10,7 +10,7 @@ resource "hcloud_server" "vm-redis" {
 
   name        = "${var.project}-redis"
   server_type = var.server_type_redis
-  image       = "debian-12"
+  image       = var.default_image
   location    = var.location
   ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
   backups     = true

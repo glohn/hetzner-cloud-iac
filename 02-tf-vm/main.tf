@@ -50,5 +50,6 @@ module "server" {
   server_type_sw_admin    = var.server_type_sw_admin
   server_type_pim         = var.server_type_pim
   number_instances_sw_web = var.number_instances_sw_web
+  default_image           = data.terraform_remote_state.tfstate-base.outputs.default_image
 }
 

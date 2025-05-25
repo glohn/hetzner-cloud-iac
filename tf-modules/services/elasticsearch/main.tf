@@ -10,7 +10,7 @@ resource "hcloud_server" "vm-elasticsearch" {
 
   name        = "${var.project}-elasticsearch"
   server_type = var.server_type_elasticsearch
-  image       = "debian-12"
+  image       = var.default_image
   location    = var.location
   ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
   backups     = true

@@ -28,3 +28,8 @@ variable "server_type_rds" {
   type        = string
 }
 
+variable "default_image" {
+  description = "Default OS image to use for VMs"
+  type        = string
+}
+

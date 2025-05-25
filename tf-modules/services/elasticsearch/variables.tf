@@ -38,3 +38,8 @@ variable "server_type_elasticsearch" {
   type        = string
 }
 
+variable "default_image" {
+  description = "Default OS image to use for VMs"
+  type        = string
+}
+

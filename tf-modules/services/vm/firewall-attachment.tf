@@ -4,8 +4,8 @@ locals {
 }
 
 resource "hcloud_firewall_attachment" "fw-vm-ssh" {
-  count          = local.create_servers ? 1 : 0
-  firewall_id    = var.firewall_id_ssh
+  count           = local.create_servers ? 1 : 0
+  firewall_id     = var.firewall_id_ssh
   label_selectors = ["service-type=vm"]
 }
 

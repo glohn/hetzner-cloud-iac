@@ -58,3 +58,8 @@ variable "number_instances_sw_web" {
   type        = number
 }
 
+variable "default_image" {
+  description = "Default OS image to use for VMs"
+  type        = string
+}
+

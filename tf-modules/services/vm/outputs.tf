@@ -1,4 +1,3 @@
-# Server IDs needed for load balancer targets (not firewall attachments)
 output "server_ids_sw_web" {
   description = "IDs of the Shopware web servers (for load balancer targets)"
   value       = [for key in keys(hcloud_server.vm-sw-web) : hcloud_server.vm-sw-web[key].id]
@@ -14,7 +13,6 @@ output "server_id_pim" {
   value       = [for i in range(var.server_type_pim != null ? 1 : 0) : hcloud_server.vm-pim[i].id]
 }
 
-# Public IP addresses for general use
 output "ipv4_addresses" {
   description = "Public IPv4 addresses of the created servers"
   value = concat(

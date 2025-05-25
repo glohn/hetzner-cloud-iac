@@ -48,3 +48,8 @@ variable "volume_size" {
   default     = 0
 }
 
+variable "default_image" {
+  description = "Default OS image to use for all VMs"
+  type        = string
+}
+
