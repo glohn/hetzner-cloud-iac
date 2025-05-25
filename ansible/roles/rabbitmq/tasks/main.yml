@@ -1,0 +1,11 @@
+---
+- name: Apply base system configuration
+  include_role:
+    name: base
+
+- name: Setup RabbitMQ repository
+  include_tasks: repository.yml
+
+- name: Install and configure RabbitMQ
+  include_tasks: rabbitmq.yml
+

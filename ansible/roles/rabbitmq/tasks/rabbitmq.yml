@@ -1,0 +1,85 @@
+---
+- name: Install modern Erlang packages
+  apt:
+    name:
+      - erlang-base
+      - erlang-asn1
+      - erlang-crypto
+      - erlang-eldap
+      - erlang-ftp
+      - erlang-inets
+      - erlang-mnesia
+      - erlang-os-mon
+      - erlang-parsetools
+      - erlang-public-key
+      - erlang-runtime-tools
+      - erlang-snmp
+      - erlang-ssl
+      - erlang-syntax-tools
+      - erlang-tftp
+      - erlang-tools
+      - erlang-xmerl
+    state: present
+
+- name: Install RabbitMQ server
+  apt:
+    name: rabbitmq-server
+    state: present
+
+- name: Enable RabbitMQ management plugin
+  rabbitmq_plugin:
+    names: rabbitmq_management
+    state: enabled
+  notify: restart rabbitmq
+
+- name: Configure RabbitMQ AMQP listener on localhost
+  lineinfile:
+    path: /etc/rabbitmq/rabbitmq.conf
+    regexp: '^listeners\.tcp\.1\s*='
+    line: "listeners.tcp.1 = 127.0.0.1:5672"
+    create: yes
+    backup: yes
+  notify: restart rabbitmq
+
+- name: Configure RabbitMQ AMQP listener on private IP
+  lineinfile:
+    path: /etc/rabbitmq/rabbitmq.conf
+    regexp: '^listeners\.tcp\.2\s*='
+    line: "listeners.tcp.2 = {{ rabbitmq_bind_ip }}:5672"
+    create: yes
+    backup: yes
+  notify: restart rabbitmq
+
+- name: Configure RabbitMQ management interface on public IP
+  lineinfile:
+    path: /etc/rabbitmq/rabbitmq.conf
+    regexp: '^management\.tcp\.ip\s*='
+    line: "management.tcp.ip = 0.0.0.0"
+    create: yes
+    backup: yes
+  notify: restart rabbitmq
+
+- name: Start and enable RabbitMQ
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: true
+
+- name: Wait for RabbitMQ to be ready
+  wait_for:
+    port: 5672
+    host: 127.0.0.1
+    delay: 5
+    timeout: 60
+
+- name: Create RabbitMQ admin user with permissions
+  rabbitmq_user:
+    user: "{{ rabbitmq_admin_user }}"
+    password: "{{ rabbitmq_admin_password }}"
+    tags: administrator
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    state: present
+
