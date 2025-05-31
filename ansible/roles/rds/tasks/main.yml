@@ -1,0 +1,11 @@
+---
+- name: Apply base system configuration
+  include_role:
+    name: base
+
+- name: Setup Percona MySQL repository
+  include_tasks: repository.yml
+
+- name: Install and configure Percona MySQL 8.0
+  include_tasks: rds.yml
+

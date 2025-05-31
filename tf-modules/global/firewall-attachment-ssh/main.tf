@@ -1,5 +1,5 @@
 resource "hcloud_firewall_attachment" "fw-services-ssh" {
   firewall_id     = var.firewall_id_services_ssh
-  label_selectors = ["service-type in (elasticsearch,rabbitmq,redis)"]
+  label_selectors = ["service-type in (elasticsearch,rabbitmq,rds,redis)"]
 }
 

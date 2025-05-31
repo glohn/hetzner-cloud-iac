@@ -13,13 +13,23 @@ variable "ssh_key_ids" {
   type        = map(string)
 }
 
-variable "ansible_public_key" {
-  description = "Public SSH key for ansible"
+variable "ansible_public_key_id" {
+  description = "ID of the public SSH key for Ansible access"
+  type        = string
+}
+
+variable "ansible_private_key" {
+  description = "Private SSH key for Ansible access"
   type        = string
 }
 
 variable "network_id" {
   description = "The ID of the private network"
+  type        = string
+}
+
+variable "firewall_id_rds" {
+  description = "The ID of the rds firewall rule"
   type        = string
 }
 
@@ -31,5 +41,17 @@ variable "server_type_rds" {
 variable "default_image" {
   description = "Default OS image to use for VMs"
   type        = string
+}
+
+variable "rds_root_password" {
+  description = "RDS root password"
+  type        = string
+  sensitive   = true
+}
+
+variable "rds_app_password" {
+  description = "RDS application password (username will be project name)"
+  type        = string
+  sensitive   = true
 }
 

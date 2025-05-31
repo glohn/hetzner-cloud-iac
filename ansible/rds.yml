@@ -1,0 +1,10 @@
+---
+- name: Deploy Percona MySQL 8.0 (RDS)
+  hosts: all
+  become: true
+  vars:
+    rds_bind_ip: "{{ rds_bind_ip }}"
+
+  roles:
+    - rds
+

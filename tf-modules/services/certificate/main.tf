@@ -5,8 +5,9 @@ data "hetznerdns_zone" "dns_zone" {
 locals {
   subdomains = [
     "${var.project}",
-    "${var.project}-admin",
-    "${var.project}-pim"
+    "admin.${var.project}",
+    "pim.${var.project}",
+    "monitoring.${var.project}"
   ]
 
   cert_domains = [

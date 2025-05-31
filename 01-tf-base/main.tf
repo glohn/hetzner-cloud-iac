@@ -21,15 +21,19 @@ module "vpc" {
 ###################
 
 module "rds" {
-  source             = "../tf-modules/data-stores/rds"
-  count              = var.server_type_rds != null ? 1 : 0
-  project            = local.project
-  location           = local.location
-  ssh_key_ids        = module.ssh.ssh_key_ids
-  ansible_public_key = module.ssh.ansible_public_key
-  server_type_rds    = var.server_type_rds
-  network_id         = module.vpc.network_id
-  default_image      = var.default_image
+  source                = "../tf-modules/data-stores/rds"
+  count                 = var.server_type_rds != null ? 1 : 0
+  project               = local.project
+  location              = local.location
+  ssh_key_ids           = module.ssh.ssh_key_ids
+  ansible_public_key_id = module.ssh.ansible_public_key
+  ansible_private_key   = module.ssh.ansible_private_key
+  server_type_rds       = var.server_type_rds
+  network_id            = module.vpc.network_id
+  firewall_id_rds       = module.firewall.firewall_id_rds
+  default_image         = var.default_image
+  rds_root_password     = data.terraform_remote_state.tfstate-tfstate.outputs.rds_root_password
+  rds_app_password      = data.terraform_remote_state.tfstate-tfstate.outputs.rds_app_password
 }
 
 module "redis" {

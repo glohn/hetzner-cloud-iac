@@ -1,0 +1,38 @@
+---
+- name: Download percona-release package
+  get_url:
+    url: https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+    dest: /tmp/percona-release_latest.generic_all.deb
+    mode: '0644'
+
+- name: Install gnupg2 and lsb-release
+  apt:
+    name:
+      - gnupg2
+      - lsb-release
+    state: present
+    update_cache: yes
+
+- name: Install percona-release package
+  apt:
+    deb: /tmp/percona-release_latest.generic_all.deb
+    state: present
+
+- name: Update APT cache after percona-release installation
+  apt:
+    update_cache: yes
+
+- name: Setup Percona Server 8.0 repository using percona-release
+  command: percona-release setup ps80
+  args:
+    creates: /etc/apt/sources.list.d/percona-original-release.list
+
+- name: Update APT cache after repository setup
+  apt:
+    update_cache: yes
+
+- name: Clean up downloaded package
+  file:
+    path: /tmp/percona-release_latest.generic_all.deb
+    state: absent
+
