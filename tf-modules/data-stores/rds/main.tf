@@ -1,5 +1,5 @@
 resource "hcloud_server" "vm-rds" {
-  count = var.server_type_rds != null ? 1 : 0
+  count = var.server_type_rds != null && var.volume_size_rds >= 10 ? 1 : 0
 
   lifecycle {
     ignore_changes = [
@@ -27,12 +27,13 @@ resource "hcloud_server" "vm-rds" {
 }
 
 resource "hcloud_server_network" "vm_rds_network" {
-  count      = var.server_type_rds != null ? 1 : 0
+  count      = var.server_type_rds != null && var.volume_size_rds >= 10 ? 1 : 0
   server_id  = hcloud_server.vm-rds[count.index].id
   network_id = var.network_id
 }
 
 resource "hcloud_volume" "vm-rds-volume" {
+  count     = var.server_type_rds != null && var.volume_size_rds >= 10 ? 1 : 0
   name      = "${var.project}-rds-volume"
   size      = var.volume_size_rds
   server_id = hcloud_server.vm-rds[0].id
@@ -41,7 +42,7 @@ resource "hcloud_volume" "vm-rds-volume" {
 }
 
 resource "null_resource" "wait_for_ssh" {
-  count = var.server_type_rds != null ? 1 : 0
+  count = var.server_type_rds != null && var.volume_size_rds >= 10 ? 1 : 0
 
   provisioner "local-exec" {
     command = <<-EOT
@@ -55,7 +56,7 @@ resource "null_resource" "wait_for_ssh" {
 }
 
 resource "null_resource" "ansible_provision" {
-  count = var.server_type_rds != null ? 1 : 0
+  count = var.server_type_rds != null && var.volume_size_rds >= 10 ? 1 : 0
 
   provisioner "local-exec" {
     command = <<-EOT
@@ -67,7 +68,7 @@ resource "null_resource" "ansible_provision" {
       ANSIBLE_LOG_PATH=/tmp/ansible-rds.log SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
       ansible-playbook -i '${hcloud_server.vm-rds[0].ipv4_address},' \
       --private-key=/tmp/ansible_key_rds -u root \
-      --extra-vars="rds_root_password=${var.rds_root_password} rds_app_password=${var.rds_app_password} rds_database_name=${replace(var.project, "-", "_")} rds_username=${replace(var.project, "-", "_")} rds_volume_device=${hcloud_volume.vm-rds-volume.linux_device}" \
+      --extra-vars="rds_root_password=${var.rds_root_password} rds_app_password=${var.rds_app_password} rds_database_name=${replace(var.project, "-", "_")} rds_username=${replace(var.project, "-", "_")} rds_volume_device=${hcloud_volume.vm-rds-volume[0].linux_device}" \
       ../ansible/rds.yml
 
       if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key_rds -o StrictHostKeyChecking=no \

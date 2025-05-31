@@ -8,10 +8,11 @@ allowed_ssh_ips = [
   "192.168.1.2/32"
 ]
 default_image             = "debian-12"
-volume_size               = 10
-volume_size_rds           = 10
+volume_size_nfs           = 0
+volume_size_rds           = 0
 server_type_elasticsearch = null
+server_type_nfs           = null
 server_type_rabbitmq      = null
-server_type_rds           = "cx22"
+server_type_rds           = null
 server_type_redis         = null
 

@@ -30,6 +30,12 @@ variable "server_type_elasticsearch" {
   default     = null
 }
 
+variable "server_type_nfs" {
+  description = "Hetzner server type to deploy, e.g. cx22"
+  type        = string
+  default     = null
+}
+
 variable "server_type_rabbitmq" {
   description = "Hetzner server type to deploy, e.g. cx22"
   type        = string
@@ -42,7 +48,7 @@ variable "server_type_redis" {
   default     = null
 }
 
-variable "volume_size" {
+variable "volume_size_nfs" {
   description = "Size in GB of additional volume"
   type        = number
   default     = 0
