@@ -50,6 +50,17 @@ resource "hcloud_firewall" "fw-elasticsearch" {
   }
 }
 
+resource "hcloud_firewall" "fw-nfs" {
+  name = "${var.project}-fw-nfs"
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = var.nfs_port
+    source_ips = var.subnet_cidrs
+  }
+}
+
 resource "hcloud_firewall" "fw-rabbitmq" {
   name = "${var.project}-fw-rabbitmq"
 

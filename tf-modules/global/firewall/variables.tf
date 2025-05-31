@@ -37,6 +37,12 @@ variable "http_port" {
   default     = "80"
 }
 
+variable "nfs_port" {
+  description = "Port for http service"
+  type        = string
+  default     = "2049"
+}
+
 variable "rabbitmq_port" {
   description = "Port for rabbitmq service"
   type        = string

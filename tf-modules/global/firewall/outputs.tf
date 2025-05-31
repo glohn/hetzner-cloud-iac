@@ -13,6 +13,11 @@ output "firewall_id_elasticsearch" {
   value       = hcloud_firewall.fw-elasticsearch.id
 }
 
+output "firewall_id_nfs" {
+  description = "The ID of the NFS firewall"
+  value       = hcloud_firewall.fw-nfs.id
+}
+
 output "firewall_id_rabbitmq" {
   description = "The ID of the RabbitMQ firewall"
   value       = hcloud_firewall.fw-rabbitmq.id

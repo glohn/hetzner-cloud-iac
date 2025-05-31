@@ -28,12 +28,12 @@ variable "network_id" {
   type        = string
 }
 
-variable "firewall_id_rds" {
-  description = "The ID of the rds firewall rule"
+variable "firewall_id_nfs" {
+  description = "The ID of the nfs firewall rule"
   type        = string
 }
 
-variable "server_type_rds" {
+variable "server_type_nfs" {
   description = "Hetzner server type to deploy, e.g. cx22"
   type        = string
 }
@@ -43,25 +43,13 @@ variable "default_image" {
   type        = string
 }
 
-variable "volume_size_rds" {
-  description = "Volume size in GB for database data"
+variable "volume_size_nfs" {
+  description = "Volume size in GB for NFS shares"
   type        = number
 
   validation {
-    condition     = var.volume_size_rds >= 10 && var.volume_size_rds <= 10240
-    error_message = "Volume size for RDS must be between 10 GB and 10 TB (10240 GB) as per Hetzner Cloud limits. Set server_type_rds to null if you don't want to create an RDS server."
+    condition     = var.volume_size_nfs >= 10 && var.volume_size_nfs <= 10240
+    error_message = "Volume size for NFS must be between 10 GB and 10 TB (10240 GB) as per Hetzner Cloud limits. Set server_type_nfs to null if you don't want to create an NFS server."
   }
-}
-
-variable "rds_root_password" {
-  description = "RDS root password"
-  type        = string
-  sensitive   = true
-}
-
-variable "rds_app_password" {
-  description = "RDS application password (username will be project name)"
-  type        = string
-  sensitive   = true
 }
 
