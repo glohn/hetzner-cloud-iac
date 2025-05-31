@@ -20,6 +20,22 @@ module "vpc" {
 ### Data-Stores ###
 ###################
 
+module "nfs" {
+  source                = "../tf-modules/data-stores/nfs"
+  count                 = var.server_type_nfs != null ? 1 : 0
+  project               = local.project
+  location              = local.location
+  ssh_key_ids           = module.ssh.ssh_key_ids
+  ansible_public_key_id = module.ssh.ansible_public_key
+  ansible_private_key   = module.ssh.ansible_private_key
+  server_type_nfs       = var.server_type_nfs
+  network_id            = module.vpc.network_id
+  firewall_id_nfs       = module.firewall.firewall_id_nfs
+  default_image         = var.default_image
+  volume_size_nfs       = var.volume_size_nfs
+  subnet_cidrs          = module.vpc.subnet_cidrs
+}
+
 module "rds" {
   source                = "../tf-modules/data-stores/rds"
   count                 = var.server_type_rds != null ? 1 : 0

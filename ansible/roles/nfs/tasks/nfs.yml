@@ -1,0 +1,75 @@
+---
+# Install and configure NFS server
+- name: Install NFS server packages
+  apt:
+    name:
+      - nfs-kernel-server
+      - nfs-common
+    state: present
+    update_cache: yes
+
+# Configure NFSv4 only - disable statd, enable idmapd
+- name: Configure NFSv4 only - disable statd, enable idmapd
+  lineinfile:
+    path: /etc/default/nfs-common
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^NEED_STATD=', line: 'NEED_STATD="no"' }
+    - { regexp: '^NEED_IDMAPD=', line: 'NEED_IDMAPD="yes"' }
+  notify: restart nfs server
+
+- name: Configure NFSv4 only - add RPCNFSDOPTS to disable NFSv2 and NFSv3
+  lineinfile:
+    path: /etc/default/nfs-kernel-server
+    line: 'RPCNFSDOPTS="-N 2 -N 3"'
+    insertafter: '^RPCNFSDPRIORITY='
+  notify: restart nfs server
+
+- name: Configure NFSv4 only - modify RPCMOUNTDOPTS to disable NFSv2 and NFSv3
+  lineinfile:
+    path: /etc/default/nfs-kernel-server
+    regexp: '^RPCMOUNTDOPTS='
+    line: 'RPCMOUNTDOPTS="--manage-gids -N 2 -N 3"'
+  notify: restart nfs server
+
+- name: Set domain for NFSv4 idmapping
+  lineinfile:
+    path: /etc/idmapd.conf
+    regexp: '^#?Domain ='
+    line: 'Domain = {{ ansible_domain | default("hcloud") }}'
+  notify: restart nfs server
+
+- name: Create NFS exports directory
+  file:
+    path: /srv/nfs
+    state: directory
+    owner: nobody
+    group: nogroup
+    mode: '0755'
+
+- name: Create default share directory
+  file:
+    path: /srv/nfs/shared
+    state: directory
+    owner: nobody
+    group: nogroup
+    mode: '0755'
+
+- name: Configure NFS exports
+  lineinfile:
+    path: /etc/exports
+    regexp: '^/srv/nfs/shared\s+'
+    line: "/srv/nfs/shared {{ nfs_client_network }}({{ nfs_export_options }})"
+    create: yes
+  notify: reload nfs exports
+
+- name: Enable and start NFS services
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - rpcbind
+    - nfs-kernel-server
+

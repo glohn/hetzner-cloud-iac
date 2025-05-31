@@ -68,7 +68,7 @@ resource "null_resource" "ansible_provision" {
       ANSIBLE_LOG_PATH=/tmp/ansible-nfs.log SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
       ansible-playbook -i '${hcloud_server.vm-nfs[0].ipv4_address},' \
       --private-key=/tmp/ansible_key_nfs -u root \
-      --extra-vars="nfs_bind_ip=${hcloud_server_network.vm_nfs_network[0].ip} nfs_volume_device=${hcloud_volume.vm-nfs-volume[0].linux_device}" \
+      --extra-vars="nfs_volume_device=${hcloud_volume.vm-nfs-volume[0].linux_device} nfs_client_network=${var.subnet_cidrs[0]}" \
       ../ansible/nfs.yml
 
       if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key_nfs -o StrictHostKeyChecking=no \

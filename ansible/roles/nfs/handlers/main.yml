@@ -1,0 +1,14 @@
+---
+- name: reload nfs exports
+  command: exportfs -ra
+
+- name: restart nfs server
+  service:
+    name: nfs-kernel-server
+    state: restarted
+
+- name: restart rpcbind
+  service:
+    name: rpcbind
+    state: restarted
+

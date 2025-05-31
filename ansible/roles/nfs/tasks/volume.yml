@@ -1,0 +1,86 @@
+---
+# Volume mounting for NFS shares - idempotent version
+- name: Check if volume is already mounted
+  shell: "mountpoint -q /srv/nfs"
+  register: volume_already_mounted
+  failed_when: false
+  changed_when: false
+
+- name: Skip volume operations if already mounted
+  debug:
+    msg: "Volume already mounted at /srv/nfs, skipping volume operations"
+  when: volume_already_mounted.rc == 0
+
+- name: Volume setup block (only if not mounted)
+  block:
+    - name: Stop NFS services before volume operations
+      service:
+        name: "{{ item }}"
+        state: stopped
+      loop:
+        - nfs-kernel-server
+        - rpcbind
+
+    - name: Check if volume device exists
+      stat:
+        path: "{{ nfs_volume_device }}"
+      register: volume_device_check
+
+    - name: Fail if volume device not found
+      fail:
+        msg: "Volume device {{ nfs_volume_device }} not found!"
+      when: not volume_device_check.stat.exists
+
+    - name: Backup existing NFS data if any
+      shell: |
+        if [ -d /srv/nfs ] && [ "$(ls -A /srv/nfs)" ]; then
+          mkdir -p /tmp/nfs_initial_data
+          cp -a /srv/nfs/* /tmp/nfs_initial_data/
+        fi
+
+    - name: Create mount point
+      file:
+        path: /srv/nfs
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: '0755'
+
+    - name: Mount volume to /srv/nfs
+      mount:
+        path: /srv/nfs
+        src: "{{ nfs_volume_device }}"
+        fstype: ext4
+        state: mounted
+        opts: defaults
+
+    - name: Restore NFS data to volume if backup exists
+      shell: |
+        if [ -d /tmp/nfs_initial_data ] && [ "$(ls -A /tmp/nfs_initial_data)" ]; then
+          cp -a /tmp/nfs_initial_data/* /srv/nfs/
+          chown -R nobody:nogroup /srv/nfs/
+        fi
+
+    - name: Clean up temporary NFS data
+      file:
+        path: /tmp/nfs_initial_data
+        state: absent
+
+    - name: Start NFS services after volume setup
+      service:
+        name: "{{ item }}"
+        state: started
+      loop:
+        - rpcbind
+        - nfs-kernel-server
+
+  when: volume_already_mounted.rc != 0
+
+- name: Ensure shared directory exists on volume (always)
+  file:
+    path: /srv/nfs/shared
+    state: directory
+    owner: nobody
+    group: nogroup
+    mode: '0755'
+

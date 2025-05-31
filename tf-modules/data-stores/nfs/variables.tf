@@ -53,3 +53,8 @@ variable "volume_size_nfs" {
   }
 }
 
+variable "subnet_cidrs" {
+  description = "CIDRs of the private subnets for NFS client access"
+  type        = list(string)
+}
+

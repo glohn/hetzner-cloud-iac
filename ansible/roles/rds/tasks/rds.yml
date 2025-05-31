@@ -20,20 +20,31 @@
   shell: |
     mysql -u root -e "SELECT user, host, plugin FROM mysql.user WHERE user='root' AND host='localhost';"
   register: mysql_root_check
+  failed_when: false
+  changed_when: false
 
-- name: Uninstall Percona telemetry DB component (while auth_socket still active)
+- name: Check if root password is already configured
   shell: |
-    mysql -u root -e 'UNINSTALL COMPONENT "file://component_percona_telemetry";'
-  when: mysql_root_check.rc == 0
-  ignore_errors: yes
+    mysql -u root -p'{{ rds_root_password }}' -e "SELECT 1;" 2>/dev/null
+  register: mysql_root_password_check
+  failed_when: false
+  changed_when: false
 
-- name: Fix root authentication method (comprehensive)
-  shell: |
-    mysql -u root <<EOF
-    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ rds_root_password }}';
-    FLUSH PRIVILEGES;
-    EOF
-  when: mysql_root_check.rc == 0
+- name: Root authentication setup block (only if needed)
+  block:
+    - name: Uninstall Percona telemetry DB component (while auth_socket still active)
+      shell: |
+        mysql -u root -e 'UNINSTALL COMPONENT "file://component_percona_telemetry";'
+      ignore_errors: yes
+
+    - name: Fix root authentication method (comprehensive)
+      shell: |
+        mysql -u root <<EOF
+        ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ rds_root_password }}';
+        FLUSH PRIVILEGES;
+        EOF
+
+  when: mysql_root_check.rc == 0 and mysql_root_password_check.rc != 0
 
 - name: Disable Percona telemetry agent service
   service:
