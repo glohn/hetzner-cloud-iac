@@ -18,6 +18,11 @@ output "firewall_id_rabbitmq" {
   value       = hcloud_firewall.fw-rabbitmq.id
 }
 
+output "firewall_id_rds" {
+  description = "The ID of the RDS firewall"
+  value       = hcloud_firewall.fw-rds.id
+}
+
 output "firewall_id_redis" {
   description = "The ID of the Redis firewall"
   value       = hcloud_firewall.fw-redis.id

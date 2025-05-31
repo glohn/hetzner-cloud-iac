@@ -1,0 +1,4 @@
+---
+# RDS (Percona MySQL 8.0) configuration
+rds_port: 3306
+

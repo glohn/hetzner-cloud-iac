@@ -1,0 +1,79 @@
+---
+- name: Install Percona MySQL 8.0 packages (with telemetry disabled)
+  apt:
+    name:
+      - percona-server-server
+      - percona-server-client
+      - python3-pymysql
+    state: present
+    update_cache: yes
+  environment:
+    PERCONA_TELEMETRY_DISABLE: "1"
+
+- name: Ensure MySQL is started and enabled
+  service:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: Check current root authentication method
+  shell: |
+    mysql -u root -e "SELECT user, host, plugin FROM mysql.user WHERE user='root' AND host='localhost';"
+  register: mysql_root_check
+
+- name: Uninstall Percona telemetry DB component (while auth_socket still active)
+  shell: |
+    mysql -u root -e 'UNINSTALL COMPONENT "file://component_percona_telemetry";'
+  when: mysql_root_check.rc == 0
+  ignore_errors: yes
+
+- name: Fix root authentication method (comprehensive)
+  shell: |
+    mysql -u root <<EOF
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ rds_root_password }}';
+    FLUSH PRIVILEGES;
+    EOF
+  when: mysql_root_check.rc == 0
+
+- name: Disable Percona telemetry agent service
+  service:
+    name: percona-telemetry-agent
+    state: stopped
+    enabled: false
+  ignore_errors: yes
+
+- name: Deploy MySQL configuration with telemetry disabled
+  template:
+    src: mysqld.cnf.j2
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+
+- name: Restart MySQL to apply new configuration
+  service:
+    name: mysql
+    state: restarted
+
+- name: Create application database
+  mysql_db:
+    name: "{{ rds_database_name }}"
+    state: present
+    login_user: root
+    login_password: "{{ rds_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: rds_database_name is defined and rds_database_name != ""
+
+- name: Create application user
+  mysql_user:
+    name: "{{ rds_username }}"
+    password: "{{ rds_app_password }}"
+    priv: "{{ rds_database_name }}.*:ALL"
+    host: "%"
+    state: present
+    login_user: root
+    login_password: "{{ rds_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: rds_username is defined and rds_username != ""
+

@@ -1,0 +1,41 @@
+#
+# The Percona Server 8.0 configuration file.
+#
+# For explanations see
+# http://dev.mysql.com/doc/mysql/en/server-system-variables.html
+
+[mysqld]
+pid-file	= /var/run/mysqld/mysqld.pid
+socket		= /var/run/mysqld/mysqld.sock
+datadir		= /var/lib/mysql
+log-error	= /var/log/mysql/error.log
+
+# Disable Percona telemetry
+percona_telemetry_disable=1
+
+# Character set and collation (Pimcore-compatible UTF8MB4)
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_520_ci
+init-connect = 'SET NAMES utf8mb4'
+
+# Binary Logging (for point-in-time recovery)
+log-bin = mysql-bin
+binlog_format = ROW
+
+# Slow Query Log (for performance debugging)
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+# InnoDB Buffer Pool Size (dynamically calculated for dedicated DB server)
+# 75% of available RAM (dedicated server with only MySQL + monitoring)
+# Minimum: 128M for very small instances
+innodb_buffer_pool_size = {{ [128, (ansible_memtotal_mb * 0.75) | int] | max }}M
+
+# Production optimizations
+skip-name-resolve = 1
+max_connect_errors = 100000
+
+# Shopware 6 requirement: minimum 32MB packet size
+max_allowed_packet = 32M
+
