@@ -1,0 +1,11 @@
+---
+- name: Apply base system configuration
+  include_role:
+    name: base
+
+- name: Install and configure NFS server
+  include_tasks: nfs.yml
+
+- name: Mount volume for NFS shares
+  include_tasks: volume.yml
+

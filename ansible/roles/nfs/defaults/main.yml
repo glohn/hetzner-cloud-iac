@@ -1,0 +1,13 @@
+---
+# NFS server configuration
+
+# Secure NFSv4 export options:
+# - rw: Read-write access
+# - sync: Synchronous writes (data safety)
+# - no_subtree_check: Better performance, recommended for NFSv4
+# - root_squash: Security - map root to nobody (default, explicit for clarity)
+# - all_squash: Map all users to anonymous (optional, very secure)
+# - anonuid/anongid: Specify anonymous user mapping
+# - sec: Security flavor (sys=standard, krb5=Kerberos)
+nfs_export_options: "rw,sync,no_subtree_check,root_squash,sec=sys"
+
