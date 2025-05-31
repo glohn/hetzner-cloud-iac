@@ -43,7 +43,13 @@ variable "server_type_redis" {
 }
 
 variable "volume_size" {
-  description = "Size of additional volume"
+  description = "Size in GB of additional volume"
+  type        = number
+  default     = 0
+}
+
+variable "volume_size_rds" {
+  description = "Size in GB of database volume"
   type        = number
   default     = 0
 }

@@ -1,0 +1,58 @@
+---
+# Volume mounting for RDS after MySQL installation
+- name: Stop MySQL service before volume operations
+  service:
+    name: mysql
+    state: stopped
+  when: rds_volume_device is defined
+
+- name: Check if volume device exists
+  stat:
+    path: "{{ rds_volume_device }}"
+  register: volume_device_check
+  when: rds_volume_device is defined
+
+- name: Fail if volume device not found
+  fail:
+    msg: "Volume device {{ rds_volume_device }} not found!"
+  when:
+    - rds_volume_device is defined
+    - not volume_device_check.stat.exists
+
+- name: Backup existing MySQL data
+  shell: |
+    if [ -d /var/lib/mysql ] && [ "$(ls -A /var/lib/mysql)" ]; then
+      mkdir -p /tmp/mysql_initial_data
+      cp -a /var/lib/mysql/* /tmp/mysql_initial_data/
+    fi
+  when: rds_volume_device is defined
+
+- name: Mount volume to /var/lib/mysql
+  mount:
+    path: /var/lib/mysql
+    src: "{{ rds_volume_device }}"
+    fstype: ext4
+    state: mounted
+    opts: defaults
+  when: rds_volume_device is defined
+
+- name: Restore MySQL data to volume
+  shell: |
+    if [ -d /tmp/mysql_initial_data ] && [ "$(ls -A /tmp/mysql_initial_data)" ]; then
+      cp -a /tmp/mysql_initial_data/* /var/lib/mysql/
+      chown -R mysql:mysql /var/lib/mysql/
+    fi
+  when: rds_volume_device is defined
+
+- name: Clean up temporary MySQL data
+  file:
+    path: /tmp/mysql_initial_data
+    state: absent
+  when: rds_volume_device is defined
+
+- name: Start MySQL service after volume setup
+  service:
+    name: mysql
+    state: started
+  when: rds_volume_device is defined
+
