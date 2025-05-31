@@ -32,6 +32,7 @@ module "rds" {
   network_id            = module.vpc.network_id
   firewall_id_rds       = module.firewall.firewall_id_rds
   default_image         = var.default_image
+  volume_size_rds       = var.volume_size_rds
   rds_root_password     = data.terraform_remote_state.tfstate-tfstate.outputs.rds_root_password
   rds_app_password      = data.terraform_remote_state.tfstate-tfstate.outputs.rds_app_password
 }

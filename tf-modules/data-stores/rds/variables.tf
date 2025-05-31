@@ -43,6 +43,11 @@ variable "default_image" {
   type        = string
 }
 
+variable "volume_size_rds" {
+  description = "Volume size in GB for database data"
+  type        = number
+}
+
 variable "rds_root_password" {
   description = "RDS root password"
   type        = string

@@ -6,6 +6,9 @@
 - name: Setup Percona MySQL repository
   include_tasks: repository.yml
 
-- name: Install and configure Percona MySQL 8.0
+- name: Install and configure Percona MySQL 8.0 (initial setup)
   include_tasks: rds.yml
+
+- name: Mount volume for MySQL data (after installation)
+  include_tasks: volume.yml
 
