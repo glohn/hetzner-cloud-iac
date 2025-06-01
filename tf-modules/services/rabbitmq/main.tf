@@ -12,7 +12,7 @@ resource "hcloud_server" "vm-rabbitmq" {
   server_type = var.server_type_rabbitmq
   image       = var.default_image
   location    = var.location
-  ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
+  ssh_keys    = [var.ansible_public_key_id]
   backups     = true
 
   labels = {
@@ -56,10 +56,12 @@ resource "null_resource" "ansible_provision" {
       echo '${var.ansible_private_key}' > /tmp/ansible_key_rabbitmq
       chmod 600 /tmp/ansible_key_rabbitmq
 
+      USER_SSH_KEYS_B64=$(echo '${jsonencode(var.user_keys)}' | base64 -w 0)
+
       ANSIBLE_LOG_PATH=/tmp/ansible-rabbitmq.log SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
       ansible-playbook -i '${hcloud_server.vm-rabbitmq[0].ipv4_address},' \
       --private-key=/tmp/ansible_key_rabbitmq -u root \
-      --extra-vars="rabbitmq_bind_ip=${hcloud_server_network.vm_rabbitmq_network[0].ip} rabbitmq_admin_user=${var.project} rabbitmq_admin_password=${var.rabbitmq_admin_password}" \
+      --extra-vars="rabbitmq_bind_ip=${hcloud_server_network.vm_rabbitmq_network[0].ip} rabbitmq_admin_user=${var.project} rabbitmq_admin_password=${var.rabbitmq_admin_password} user_ssh_keys_b64=$USER_SSH_KEYS_B64" \
       ../ansible/rabbitmq.yml
 
       if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key_rabbitmq -o StrictHostKeyChecking=no \

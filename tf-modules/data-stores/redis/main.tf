@@ -12,7 +12,7 @@ resource "hcloud_server" "vm-redis" {
   server_type = var.server_type_redis
   image       = var.default_image
   location    = var.location
-  ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
+  ssh_keys    = [var.ansible_public_key_id]
   backups     = true
 
   labels = {
@@ -56,10 +56,12 @@ resource "null_resource" "ansible_provision" {
       echo '${var.ansible_private_key}' > /tmp/ansible_key_redis
       chmod 600 /tmp/ansible_key_redis
 
+      USER_SSH_KEYS_B64=$(echo '${jsonencode(var.user_keys)}' | base64 -w 0)
+
       ANSIBLE_LOG_PATH=/tmp/ansible-redis.log SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
       ansible-playbook -i '${hcloud_server.vm-redis[0].ipv4_address},' \
       --private-key=/tmp/ansible_key_redis -u root \
-      --extra-vars="redis_bind_ip=${hcloud_server_network.vm_redis_network[0].ip}" \
+      --extra-vars="redis_bind_ip=${hcloud_server_network.vm_redis_network[0].ip} user_ssh_keys_b64=$USER_SSH_KEYS_B64" \
       ../ansible/redis.yml
 
       if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key_redis -o StrictHostKeyChecking=no \

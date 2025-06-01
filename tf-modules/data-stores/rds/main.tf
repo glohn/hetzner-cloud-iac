@@ -12,7 +12,7 @@ resource "hcloud_server" "vm-rds" {
   server_type = var.server_type_rds
   image       = var.default_image
   location    = var.location
-  ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
+  ssh_keys    = [var.ansible_public_key_id]
   backups     = true
 
   labels = {
@@ -65,10 +65,12 @@ resource "null_resource" "ansible_provision" {
       echo '${var.ansible_private_key}' > /tmp/ansible_key_rds
       chmod 600 /tmp/ansible_key_rds
 
+      USER_SSH_KEYS_B64=$(echo '${jsonencode(var.user_keys)}' | base64 -w 0)
+
       ANSIBLE_LOG_PATH=/tmp/ansible-rds.log SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
       ansible-playbook -i '${hcloud_server.vm-rds[0].ipv4_address},' \
       --private-key=/tmp/ansible_key_rds -u root \
-      --extra-vars="rds_root_password=${var.rds_root_password} rds_app_password=${var.rds_app_password} rds_database_name=${replace(var.project, "-", "_")} rds_username=${replace(var.project, "-", "_")} rds_volume_device=${hcloud_volume.vm-rds-volume[0].linux_device}" \
+      --extra-vars="rds_root_password=${var.rds_root_password} rds_app_password=${var.rds_app_password} rds_database_name=${replace(var.project, "-", "_")} rds_username=${replace(var.project, "-", "_")} rds_volume_device=${hcloud_volume.vm-rds-volume[0].linux_device} user_ssh_keys_b64=$USER_SSH_KEYS_B64" \
       ../ansible/rds.yml
 
       if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key_rds -o StrictHostKeyChecking=no \

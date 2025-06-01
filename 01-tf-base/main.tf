@@ -25,7 +25,7 @@ module "nfs" {
   count                 = var.server_type_nfs != null ? 1 : 0
   project               = local.project
   location              = local.location
-  ssh_key_ids           = module.ssh.ssh_key_ids
+  user_keys             = var.user_keys
   ansible_public_key_id = module.ssh.ansible_public_key
   ansible_private_key   = module.ssh.ansible_private_key
   server_type_nfs       = var.server_type_nfs
@@ -41,7 +41,7 @@ module "rds" {
   count                 = var.server_type_rds != null ? 1 : 0
   project               = local.project
   location              = local.location
-  ssh_key_ids           = module.ssh.ssh_key_ids
+  user_keys             = var.user_keys
   ansible_public_key_id = module.ssh.ansible_public_key
   ansible_private_key   = module.ssh.ansible_private_key
   server_type_rds       = var.server_type_rds
@@ -58,7 +58,7 @@ module "redis" {
   count                 = var.server_type_redis != null ? 1 : 0
   project               = local.project
   location              = local.location
-  ssh_key_ids           = module.ssh.ssh_key_ids
+  user_keys             = var.user_keys
   ansible_public_key_id = module.ssh.ansible_public_key
   ansible_private_key   = module.ssh.ansible_private_key
   network_id            = module.vpc.network_id
@@ -101,7 +101,7 @@ module "elasticsearch" {
   count                     = var.server_type_elasticsearch != null ? 1 : 0
   project                   = local.project
   location                  = local.location
-  ssh_key_ids               = module.ssh.ssh_key_ids
+  user_keys                 = var.user_keys
   ansible_public_key_id     = module.ssh.ansible_public_key
   ansible_private_key       = module.ssh.ansible_private_key
   network_id                = module.vpc.network_id
@@ -115,7 +115,7 @@ module "rabbitmq" {
   count                   = var.server_type_rabbitmq != null ? 1 : 0
   project                 = local.project
   location                = local.location
-  ssh_key_ids             = module.ssh.ssh_key_ids
+  user_keys               = var.user_keys
   ansible_public_key_id   = module.ssh.ansible_public_key
   ansible_private_key     = module.ssh.ansible_private_key
   network_id              = module.vpc.network_id

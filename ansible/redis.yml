@@ -6,5 +6,7 @@
     redis_bind_ip: "{{ redis_bind_ip }}"
 
   roles:
+    - base
+    - ssh-keys
     - redis
 

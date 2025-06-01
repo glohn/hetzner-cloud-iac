@@ -6,5 +6,7 @@
     rds_bind_ip: "{{ rds_bind_ip }}"
 
   roles:
+    - base
+    - ssh-keys
     - rds
 

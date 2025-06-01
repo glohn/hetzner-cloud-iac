@@ -8,8 +8,8 @@ variable "location" {
   type        = string
 }
 
-variable "ssh_key_ids" {
-  description = "IDs of ssh keys"
+variable "user_keys" {
+  description = "SSH public keys of users to be managed by Ansible"
   type        = map(string)
 }
 
@@ -29,7 +29,7 @@ variable "network_id" {
 }
 
 variable "firewall_id_elasticsearch" {
-  description = "The ID of the elasticsearch firewall rule"
+  description = "The ID of the Elasticsearch firewall rule"
   type        = string
 }
 

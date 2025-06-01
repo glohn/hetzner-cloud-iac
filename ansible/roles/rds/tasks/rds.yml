@@ -61,11 +61,7 @@
     group: root
     mode: '0644'
     backup: yes
-
-- name: Restart MySQL to apply new configuration
-  service:
-    name: mysql
-    state: restarted
+  notify: restart mysql
 
 - name: Create application database
   mysql_db:
