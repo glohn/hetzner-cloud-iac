@@ -6,5 +6,7 @@
     rabbitmq_bind_ip: "{{ rabbitmq_bind_ip }}"
 
   roles:
+    - base
+    - ssh-keys
     - rabbitmq
 

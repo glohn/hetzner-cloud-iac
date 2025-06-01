@@ -4,5 +4,7 @@
   become: true
 
   roles:
+    - base
+    - ssh-keys
     - nfs
 

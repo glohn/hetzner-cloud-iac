@@ -1,0 +1,41 @@
+---
+# SSH Keys Management Role
+- name: Ensure .ssh directory exists for root
+  file:
+    path: /root/.ssh
+    state: directory
+    mode: '0700'
+    owner: root
+    group: root
+
+- name: Create authorized_keys file if it doesn't exist
+  file:
+    path: /root/.ssh/authorized_keys
+    state: touch
+    mode: '0600'
+    owner: root
+    group: root
+
+- name: Decode base64 encoded user SSH keys
+  set_fact:
+    user_ssh_keys: "{{ user_ssh_keys_b64 | b64decode | from_json }}"
+  when: user_ssh_keys_b64 is defined
+
+- name: Manage SSH keys in designated block
+  blockinfile:
+    path: /root/.ssh/authorized_keys
+    marker: "# {mark} ANSIBLE MANAGED SSH KEYS"
+    block: |
+      {% for key_name, key_value in user_ssh_keys.items() %}
+      {{ key_value }}
+      {% endfor %}
+    state: present
+  when: user_ssh_keys is defined and user_ssh_keys | length > 0
+
+- name: Remove managed block if no keys defined
+  blockinfile:
+    path: /root/.ssh/authorized_keys
+    marker: "# {mark} ANSIBLE MANAGED SSH KEYS"
+    state: absent
+  when: user_ssh_keys is not defined or user_ssh_keys | length == 0
+

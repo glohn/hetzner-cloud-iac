@@ -1,8 +1,4 @@
 ---
-- name: Apply base system configuration
-  include_role:
-    name: base
-
 - name: Install and configure NFS server
   include_tasks: nfs.yml
 

@@ -8,8 +8,8 @@ variable "location" {
   type        = string
 }
 
-variable "ssh_key_ids" {
-  description = "IDs of ssh keys"
+variable "user_keys" {
+  description = "SSH public keys of users to be managed by Ansible"
   type        = map(string)
 }
 
@@ -29,7 +29,7 @@ variable "network_id" {
 }
 
 variable "firewall_id_nfs" {
-  description = "The ID of the nfs firewall rule"
+  description = "The ID of the NFS firewall rule"
   type        = string
 }
 
@@ -44,7 +44,7 @@ variable "default_image" {
 }
 
 variable "volume_size_nfs" {
-  description = "Volume size in GB for NFS shares"
+  description = "Size in GB of NFS volume"
   type        = number
 
   validation {
@@ -54,7 +54,7 @@ variable "volume_size_nfs" {
 }
 
 variable "subnet_cidrs" {
-  description = "CIDRs of the private subnets for NFS client access"
+  description = "CIDR blocks of the private subnets"
   type        = list(string)
 }
 

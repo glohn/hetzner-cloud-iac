@@ -8,8 +8,8 @@ variable "location" {
   type        = string
 }
 
-variable "ssh_key_ids" {
-  description = "IDs of ssh keys"
+variable "user_keys" {
+  description = "SSH public keys of users to be managed by Ansible"
   type        = map(string)
 }
 

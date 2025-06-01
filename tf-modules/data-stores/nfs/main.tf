@@ -12,7 +12,7 @@ resource "hcloud_server" "vm-nfs" {
   server_type = var.server_type_nfs
   image       = var.default_image
   location    = var.location
-  ssh_keys    = concat(values(var.ssh_key_ids), [var.ansible_public_key_id])
+  ssh_keys    = [var.ansible_public_key_id]
   backups     = true
 
   labels = {
@@ -65,10 +65,12 @@ resource "null_resource" "ansible_provision" {
       echo '${var.ansible_private_key}' > /tmp/ansible_key_nfs
       chmod 600 /tmp/ansible_key_nfs
 
+      USER_SSH_KEYS_B64=$(echo '${jsonencode(var.user_keys)}' | base64 -w 0)
+
       ANSIBLE_LOG_PATH=/tmp/ansible-nfs.log SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 ANSIBLE_CONFIG=../ansible/ansible.cfg ANSIBLE_HOST_KEY_CHECKING=False \
       ansible-playbook -i '${hcloud_server.vm-nfs[0].ipv4_address},' \
       --private-key=/tmp/ansible_key_nfs -u root \
-      --extra-vars="nfs_volume_device=${hcloud_volume.vm-nfs-volume[0].linux_device} nfs_client_network=${var.subnet_cidrs[0]}" \
+      --extra-vars="nfs_volume_device=${hcloud_volume.vm-nfs-volume[0].linux_device} nfs_client_network=${var.subnet_cidrs[0]} user_ssh_keys_b64=$USER_SSH_KEYS_B64" \
       ../ansible/nfs.yml
 
       if SSH_AGENT_PID=0 SSH_AUTH_SOCK=0 scp -i /tmp/ansible_key_nfs -o StrictHostKeyChecking=no \
