@@ -59,7 +59,7 @@ Include this role in your playbook:
   become: yes
   roles:
     - base
-    - ssh-keys
+    - user-management
     - redis
   vars:
     redis_bind_ip: "{{ ansible_default_ipv4.address }}"

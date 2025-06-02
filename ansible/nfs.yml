@@ -5,6 +5,6 @@
 
   roles:
     - base
-    - ssh-keys
+    - user-management
     - nfs
 

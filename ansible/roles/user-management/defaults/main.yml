@@ -1,0 +1,4 @@
+# Default variables for user-management role
+user_ssh_keys_b64: ""
+user_ssh_keys: {}
+

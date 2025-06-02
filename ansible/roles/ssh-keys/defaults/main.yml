@@ -1,4 +1,0 @@
----
-# Default variables for ssh-keys role
-user_ssh_keys: {}
-

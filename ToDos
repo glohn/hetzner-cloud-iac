@@ -1,0 +1,6 @@
+* check elasticsearch for production readiness
+* use floating-ip for nfs
+* use nfs in vms
+* implement observability
+* implement backup
+

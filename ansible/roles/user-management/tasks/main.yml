@@ -1,0 +1,89 @@
+---
+# User Management Role - Creates individual users with sudo rights
+- name: Decode base64 encoded user SSH keys
+  set_fact:
+    user_ssh_keys: "{{ user_ssh_keys_b64 | b64decode | from_json }}"
+  when: user_ssh_keys_b64 is defined
+
+- name: Create individual users for each SSH key
+  shell: |
+    if ! id "{{ item.key }}" &>/dev/null; then
+      adduser --disabled-password --gecos "" --force-badname "{{ item.key }}"
+      usermod -aG sudo "{{ item.key }}"
+    fi
+  loop: "{{ user_ssh_keys | dict2items }}"
+  when: user_ssh_keys is defined and user_ssh_keys | length > 0
+
+- name: Ensure .ssh directory exists for each user
+  file:
+    path: "/home/{{ item.key }}/.ssh"
+    state: directory
+    mode: '0700'
+    owner: "{{ item.key }}"
+    group: "{{ item.key }}"
+  loop: "{{ user_ssh_keys | dict2items }}"
+  when: user_ssh_keys is defined and user_ssh_keys | length > 0
+
+- name: Add SSH key for each user
+  authorized_key:
+    user: "{{ item.key }}"
+    key: "{{ item.value }}"
+    state: present
+    exclusive: yes
+  loop: "{{ user_ssh_keys | dict2items }}"
+  when: user_ssh_keys is defined and user_ssh_keys | length > 0
+
+- name: Configure passwordless sudo for users
+  lineinfile:
+    path: /etc/sudoers.d/ansible-managed-users
+    line: "{{ item.key }} ALL=(ALL) NOPASSWD:ALL"
+    create: yes
+    mode: '0440'
+    validate: 'visudo -cf %s'
+  loop: "{{ user_ssh_keys | dict2items }}"
+  when: user_ssh_keys is defined and user_ssh_keys | length > 0
+
+- name: Remove users that are no longer managed by Ansible
+  block:
+    - name: Read current ansible-managed sudoers file
+      slurp:
+        src: /etc/sudoers.d/ansible-managed-users
+      register: current_sudoers
+      failed_when: false
+
+    - name: Extract currently managed users from sudoers file
+      set_fact:
+        managed_users: "{{ (current_sudoers.content | b64decode | regex_findall('^([a-zA-Z0-9._-]+) ALL=\\(ALL\\) NOPASSWD:ALL', multiline=True)) | default([]) }}"
+      when: current_sudoers.content is defined
+
+    - name: Identify users to remove (in sudoers but not in current config)
+      set_fact:
+        users_to_remove: "{{ managed_users | difference(user_ssh_keys.keys() | list) }}"
+      when:
+        - managed_users is defined
+        - user_ssh_keys is defined
+
+    - name: Remove obsolete users from system
+      user:
+        name: "{{ item }}"
+        state: absent
+        remove: yes
+      loop: "{{ users_to_remove }}"
+      when:
+        - users_to_remove is defined
+        - users_to_remove | length > 0
+        - item != 'root'  # Safety check
+
+    - name: Remove obsolete users from sudoers file
+      lineinfile:
+        path: /etc/sudoers.d/ansible-managed-users
+        line: "{{ item }} ALL=(ALL) NOPASSWD:ALL"
+        state: absent
+        validate: 'visudo -cf %s'
+      loop: "{{ users_to_remove }}"
+      when:
+        - users_to_remove is defined
+        - users_to_remove | length > 0
+
+  when: user_ssh_keys is defined
+
