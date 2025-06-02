@@ -66,9 +66,9 @@ This role is automatically included in all service deployments:
   hosts: servers
   become: yes
   roles:
-    - base          # Always first
-    - ssh-keys      # Then SSH key management
-    - service-role  # Finally the specific service
+    - base              # Always first
+    - user-management   # Then user and SSH key management
+    - service-role      # Finally the specific service
 ```
 
 ## File Modifications
@@ -94,5 +94,5 @@ This role is automatically included in all service deployments:
 
 - **Target OS**: Debian 12 (Bookworm) or compatible
 - **Network Access**: Requires internet for package downloads
-- **Privileges**: Requires root access for system configuration 
+- **Privileges**: Requires root access for system configuration
 

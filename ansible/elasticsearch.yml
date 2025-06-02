@@ -7,6 +7,6 @@
 
   roles:
     - base
-    - ssh-keys
+    - user-management
     - elasticsearch
 
