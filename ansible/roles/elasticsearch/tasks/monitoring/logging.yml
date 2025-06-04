@@ -1,0 +1,44 @@
+---
+# Comprehensive logging configuration for Elasticsearch and Kibana
+# Log Directories
+- name: Ensure Elasticsearch log directory exists
+  file:
+    path: /var/log/elasticsearch
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0755'
+
+- name: Ensure Kibana log directory exists
+  file:
+    path: /var/log/kibana
+    state: directory
+    owner: kibana
+    group: kibana
+    mode: '0755'
+  when: install_kibana | default(true)
+
+# Elasticsearch Logging Configuration
+- name: Configure Elasticsearch log4j2 properties
+  template:
+    src: log4j2.properties.j2
+    dest: /etc/elasticsearch/log4j2.properties
+    owner: root
+    group: elasticsearch
+    mode: "{{ '0640' if elasticsearch_secure_permissions | default(true) else '0660' }}"
+    backup: yes
+  notify: restart elasticsearch
+
+# Log Rotation
+- name: Setup logrotate for Elasticsearch logs
+  template:
+    src: logrotate-elasticsearch.j2
+    dest: /etc/logrotate.d/elasticsearch
+    mode: '0644'
+
+- name: Setup logrotate for Kibana logs
+  template:
+    src: logrotate-kibana.j2
+    dest: /etc/logrotate.d/kibana
+    mode: '0644'
+  when: install_kibana | default(true) 

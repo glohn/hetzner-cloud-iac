@@ -1,7 +1,31 @@
 ---
+# Phase 1: System Preparation  
 - name: Setup Redis repository
-  include_tasks: repository.yml
+  include_tasks: install/repository.yml
 
-- name: Install and configure Redis
-  include_tasks: redis.yml
+# Phase 2: Package Installation
+- name: Install Redis package
+  include_tasks: install/redis.yml
+
+# Phase 3: Core Configuration
+- name: Configure Redis core settings
+  include_tasks: config/core.yml
+
+- name: Configure Redis logging
+  include_tasks: config/logging.yml
+
+- name: Configure Redis performance settings  
+  include_tasks: config/performance.yml
+
+# Phase 4: Security Hardening
+- name: Apply Redis security hardening
+  include_tasks: security/hardening.yml
+
+# Phase 5: Service Management
+- name: Start Redis service
+  include_tasks: services/management.yml
+
+# Phase 6: Health Validation
+- name: Validate Redis health
+  include_tasks: monitoring/health.yml
 

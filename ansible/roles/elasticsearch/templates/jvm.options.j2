@@ -1,0 +1,13 @@
+# JVM heap size configuration for Elasticsearch
+# Automatically calculated: 50% of available RAM, maximum 32GB
+# Minimum: 256MB for very small instances
+{% set calculated_heap_mb = (ansible_memtotal_mb * 0.5) | int %}
+{% set heap_mb = [calculated_heap_mb, 32768] | min %}
+{% set heap_mb = [heap_mb, 256] | max %}
+{% if heap_mb >= 1024 %}
+{% set heap_size = (heap_mb / 1024) | int | string + "g" %}
+{% else %}
+{% set heap_size = heap_mb | string + "m" %}
+{% endif %}
+-Xms{{ heap_size }}
+-Xmx{{ heap_size }}

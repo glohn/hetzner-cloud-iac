@@ -1,0 +1,20 @@
+---
+# Redis Security Configuration
+- name: Configure Redis authentication (if enabled)
+  lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: '^requirepass\s+.*'
+    line: "requirepass {{ redis_password }}"
+    state: present
+  notify: restart redis
+  no_log: true
+  when: redis_auth_enabled
+
+- name: Ensure protected-mode is enabled
+  lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: '^protected-mode\s+.*'
+    line: "protected-mode yes"
+    state: present
+  register: protected_mode
+  notify: restart redis 

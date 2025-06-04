@@ -1,0 +1,14 @@
+# Logrotate configuration for Kibana
+/var/log/kibana/*.log {
+    daily
+    missingok
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 644 kibana kibana
+    sharedscripts
+    postrotate
+        /bin/kill -HUP $(cat /var/run/kibana/kibana.pid 2>/dev/null) 2>/dev/null || true
+    endscript
+} 

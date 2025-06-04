@@ -4,6 +4,8 @@
     url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     dest: /tmp/elasticsearch.gpg
     mode: '0644'
+  retries: "{{ elasticsearch_network_retries }}"
+  delay: "{{ elasticsearch_apt_retry_delay }}"
 
 - name: Convert Elasticsearch GPG key to binary and move to keyrings dir
   shell: |
@@ -13,11 +15,13 @@
 
 - name: Add Elasticsearch APT repository with signed-by
   apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/elasticsearch-archive-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main"
+    repo: "{{ elastic_repo_url }}"
     filename: elasticsearch
     state: present
 
 - name: Update APT cache
   apt:
     update_cache: yes
+  retries: "{{ elasticsearch_apt_retries }}"
+  delay: "{{ elasticsearch_apt_retry_delay }}"
 

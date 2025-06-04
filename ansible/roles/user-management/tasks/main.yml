@@ -6,11 +6,13 @@
   when: user_ssh_keys_b64 is defined
 
 - name: Create individual users for each SSH key
-  shell: |
-    if ! id "{{ item.key }}" &>/dev/null; then
-      adduser --disabled-password --gecos "" --force-badname "{{ item.key }}"
-      usermod -aG sudo "{{ item.key }}"
-    fi
+  user:
+    name: "{{ item.key }}"
+    state: present
+    groups: sudo
+    append: yes
+    shell: /bin/bash
+    create_home: yes
   loop: "{{ user_ssh_keys | dict2items }}"
   when: user_ssh_keys is defined and user_ssh_keys | length > 0
 

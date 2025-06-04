@@ -1,0 +1,114 @@
+---
+# Security hardening for Elasticsearch and Kibana
+# User Security
+- name: Ensure elasticsearch user has secure shell
+  user:
+    name: elasticsearch
+    shell: "{{ elasticsearch_user_shell }}"
+    system: yes
+    home: /var/lib/elasticsearch
+    create_home: no
+
+- name: Ensure kibana user has secure shell
+  user:
+    name: kibana
+    shell: "{{ kibana_user_shell }}"
+    system: yes
+    home: /var/lib/kibana
+    create_home: no
+  when: install_kibana | default(true)
+
+# Directory Security
+- name: Secure Elasticsearch configuration directory
+  file:
+    path: /etc/elasticsearch
+    state: directory
+    owner: root
+    group: elasticsearch
+    mode: '0750'
+
+- name: Secure Elasticsearch data directory
+  file:
+    path: /var/lib/elasticsearch
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+    mode: '0750'
+
+- name: Secure Kibana configuration directory
+  file:
+    path: /etc/kibana
+    state: directory
+    owner: root
+    group: kibana
+    mode: '0750'
+  when: install_kibana | default(true)
+
+- name: Secure Kibana data directory
+  file:
+    path: /var/lib/kibana
+    state: directory
+    owner: kibana
+    group: kibana
+    mode: '0750'
+  when: install_kibana | default(true)
+
+# File Permissions
+- name: Secure Elasticsearch main configuration file
+  file:
+    path: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: "{{ '0640' if elasticsearch_secure_permissions | default(true) else '0660' }}"
+
+- name: Secure Elasticsearch keystore file
+  file:
+    path: /etc/elasticsearch/elasticsearch.keystore
+    owner: root
+    group: elasticsearch
+    mode: '0640'
+  ignore_errors: yes  # Keystore might not exist
+
+- name: Secure Kibana main configuration file
+  file:
+    path: /etc/kibana/kibana.yml
+    owner: root
+    group: kibana
+    mode: "{{ '0640' if elasticsearch_secure_permissions | default(true) else '0660' }}"
+  when: install_kibana | default(true)
+
+# SSL Keystore Management (prevent startup conflicts)
+- name: Check existing keystore entries
+  shell: /usr/share/elasticsearch/bin/elasticsearch-keystore list
+  register: keystore_entries
+  changed_when: false
+  failed_when: false
+  when: not elasticsearch_security_enabled | default(false) and elasticsearch_clean_ssl_keystore | default(true)
+
+- name: Remove SSL keystore entries when security is disabled
+  shell: |
+    /usr/share/elasticsearch/bin/elasticsearch-keystore remove {{ item }} --silent || true
+  loop:
+    - xpack.security.transport.ssl.keystore.secure_password
+    - xpack.security.transport.ssl.truststore.secure_password
+    - xpack.security.http.ssl.keystore.secure_password
+    - autoconfiguration.password_hash
+  when: 
+    - not elasticsearch_security_enabled | default(false)
+    - elasticsearch_clean_ssl_keystore | default(true)
+    - keystore_entries is defined
+    - keystore_entries.stdout is defined
+    - item in keystore_entries.stdout
+  notify: restart elasticsearch
+
+- name: Fix keystore permissions after SSL cleanup
+  file:
+    path: /etc/elasticsearch/elasticsearch.keystore
+    owner: root
+    group: elasticsearch
+    mode: '0640'
+  when: 
+    - not elasticsearch_security_enabled | default(false)
+    - elasticsearch_clean_ssl_keystore | default(true)
+    - keystore_entries is defined
+    - keystore_entries.stdout is defined 

@@ -1,0 +1,17 @@
+---
+# Redis Health Monitoring
+- name: Wait for Redis to be ready
+  wait_for:
+    port: "{{ redis_port }}"
+    host: "127.0.0.1"
+    timeout: "{{ redis_health_check_retries * redis_health_check_delay }}"
+  when: redis_health_check_enabled
+
+- name: Test Redis connection
+  command: redis-cli -h 127.0.0.1 -p {{ redis_port }} ping
+  register: redis_ping
+  retries: "{{ redis_health_check_retries }}"
+  delay: "{{ redis_health_check_delay }}"
+  until: redis_ping.stdout == "PONG"
+  when: redis_health_check_enabled
+  changed_when: false 

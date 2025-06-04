@@ -1,0 +1,7 @@
+---
+# Redis Service Management
+- name: Start and enable Redis
+  service:
+    name: redis-server
+    state: started
+    enabled: true 

@@ -1,0 +1,8 @@
+---
+# Pure Kibana installation - no configuration
+- name: Install Kibana
+  apt:
+    name: kibana
+    state: present
+  retries: "{{ elasticsearch_apt_retries }}"
+  delay: "{{ elasticsearch_apt_retry_delay }}" 

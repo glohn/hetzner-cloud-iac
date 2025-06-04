@@ -1,0 +1,14 @@
+# Logrotate configuration for Elasticsearch
+/var/log/elasticsearch/*.log {
+    daily
+    missingok
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 644 elasticsearch elasticsearch
+    sharedscripts
+    postrotate
+        /bin/kill -HUP $(cat /var/run/elasticsearch/elasticsearch.pid 2>/dev/null) 2>/dev/null || true
+    endscript
+} 

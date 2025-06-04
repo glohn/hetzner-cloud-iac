@@ -1,0 +1,14 @@
+---
+# Service management for Elasticsearch and Kibana
+- name: Start and enable Elasticsearch
+  service:
+    name: elasticsearch
+    state: started
+    enabled: yes
+
+- name: Start and enable Kibana
+  service:
+    name: kibana
+    state: started
+    enabled: yes
+  when: install_kibana | default(true) 

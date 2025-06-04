@@ -1,0 +1,23 @@
+---
+# Redis Performance Configuration
+- name: Set memory overcommit for Redis performance
+  sysctl:
+    name: vm.overcommit_memory
+    value: "1"
+    state: present
+    sysctl_set: yes
+    reload: yes
+  when: redis_configure_performance and redis_overcommit_memory
+
+- name: Check current transparent huge pages setting
+  slurp:
+    src: /sys/kernel/mm/transparent_hugepage/enabled
+  register: thp_current
+  when: redis_configure_performance and not redis_transparent_hugepage
+
+- name: Disable transparent huge pages for Redis performance
+  shell: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+  when: 
+    - redis_configure_performance and not redis_transparent_hugepage
+    - "'[never]' not in (thp_current.content | b64decode)"
+  ignore_errors: yes 

@@ -1,0 +1,28 @@
+---
+# Redis Logging Configuration
+- name: Ensure Redis log directory exists
+  file:
+    path: "{{ redis_log_file | dirname }}"
+    state: directory
+    owner: redis
+    group: redis
+    mode: '0755'
+  when: redis_configure_logging
+
+- name: Configure Redis log level
+  lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: '^loglevel\s+.*'
+    line: "loglevel {{ redis_log_level }}"
+    state: present
+  notify: restart redis
+  when: redis_configure_logging
+
+- name: Configure Redis log file
+  lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: '^logfile\s+.*'
+    line: "logfile {{ redis_log_file }}"
+    state: present
+  notify: restart redis
+  when: redis_configure_logging 
