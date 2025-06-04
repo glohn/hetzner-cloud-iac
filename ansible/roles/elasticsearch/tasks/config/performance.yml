@@ -1,0 +1,43 @@
+---
+# System performance optimizations for Elasticsearch (RDS-style)
+
+- name: Set vm.max_map_count for Elasticsearch
+  sysctl:
+    name: vm.max_map_count
+    value: "{{ elasticsearch_max_map_count }}"
+    state: present
+    sysctl_set: yes
+    reload: yes
+  when: elasticsearch_configure_max_map_count | bool
+
+- name: Configure Elasticsearch JVM heap size (auto-calculated)
+  template:
+    src: jvm.options.j2
+    dest: /etc/elasticsearch/jvm.options.d/heap.options
+    mode: '0644'
+    backup: yes
+  notify: restart elasticsearch
+  when: elasticsearch_configure_performance | bool
+
+- name: Set file descriptor limits for elasticsearch user
+  pam_limits:
+    domain: elasticsearch
+    limit_type: "{{ item.type }}"
+    limit_item: nofile
+    value: "{{ elasticsearch_max_open_files }}"
+  loop:
+    - { type: 'soft' }
+    - { type: 'hard' }
+  when: elasticsearch_configure_file_limits | bool
+
+- name: Disable swap if configured
+  command: swapoff -a
+  when: elasticsearch_disable_swap | bool
+  ignore_errors: yes
+
+- name: Remove swap from fstab if disable_swap is enabled
+  lineinfile:
+    path: /etc/fstab
+    regexp: '^.*swap.*'
+    state: absent
+  when: elasticsearch_disable_swap | bool 

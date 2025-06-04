@@ -1,6 +1,28 @@
 ---
-# Redis configuration
+# Redis Configuration Defaults
+
+# Network Configuration
 redis_bind_ip: "{{ ansible_default_ipv4.address }}"
+redis_port: 6379
+
+# Authentication (optional)
+redis_auth_enabled: false
+redis_password: ""
+
+# Logging configuration
+redis_configure_logging: true
+redis_log_level: "notice"
+redis_log_file: "/var/log/redis/redis-server.log"
+
+# Performance configuration
+redis_configure_performance: true
+redis_overcommit_memory: true
+redis_transparent_hugepage: false
+
+# Health check configuration
+redis_health_check_enabled: true
+redis_health_check_retries: 15
+redis_health_check_delay: 5
 
 # Repository configuration
 redis_repo_key_url: "https://packages.redis.io/gpg"

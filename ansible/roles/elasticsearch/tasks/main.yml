@@ -1,11 +1,44 @@
 ---
+# Phase 1: System Preparation
 - name: Setup Elasticsearch repository
-  include_tasks: repository.yml
+  include_tasks: install/repository.yml
 
-- name: Install and configure Elasticsearch
-  include_tasks: elasticsearch.yml
+# Phase 2: Service Installation
+- name: Install Elasticsearch core
+  include_tasks: install/elasticsearch.yml
 
-- name: Install and configure Kibana
-  include_tasks: kibana.yml
+- name: Install Kibana
+  include_tasks: install/kibana.yml
   when: install_kibana | default(true)
+
+# Phase 3: Core Configuration (creates config files)
+- name: Configure Elasticsearch
+  include_tasks: config/elasticsearch.yml
+
+- name: Configure Kibana
+  include_tasks: config/kibana.yml
+  when: install_kibana | default(true)
+
+# Phase 4: Security Hardening (needs config files to exist)
+- name: Apply security hardening
+  include_tasks: security/hardening.yml
+  when: elasticsearch_security_hardening | default(true)
+
+# Phase 5: System Performance Settings (needs config files and directories)
+- name: Configure system performance settings
+  include_tasks: config/performance.yml
+
+# Phase 6: Logging Configuration
+- name: Configure logging and monitoring
+  include_tasks: monitoring/logging.yml
+  when: elasticsearch_configure_logging | default(true)
+
+# Phase 7: Service Startup
+- name: Start services
+  include_tasks: services/management.yml
+
+# Phase 8: Health Validation
+- name: Validate service health
+  include_tasks: monitoring/health.yml
+  when: elasticsearch_health_check_enabled | default(true)
 

@@ -1,0 +1,103 @@
+---
+# Health checks and validation for Elasticsearch and Kibana (running locally on target system)
+
+- name: Wait for Elasticsearch service to be ready (local check)
+  uri:
+    url: "http://127.0.0.1:{{ elasticsearch_http_port }}/"
+    method: GET
+    status_code: 200
+  register: elasticsearch_ready
+  until: elasticsearch_ready.status == 200
+  retries: "{{ elasticsearch_health_check_retries }}"
+  delay: "{{ elasticsearch_health_check_delay }}"
+  failed_when: false
+
+- name: Display Elasticsearch startup status
+  debug:
+    msg: "Elasticsearch is {{ 'ready' if elasticsearch_ready.status == 200 else 'not responding' }} (checked locally)"
+
+- name: Fail if Elasticsearch is not ready
+  fail:
+    msg: "Elasticsearch failed to start properly after {{ elasticsearch_health_check_retries * elasticsearch_health_check_delay }} seconds"
+  when: elasticsearch_ready.status != 200
+
+- name: Check Elasticsearch cluster health (local check)
+  uri:
+    url: "http://127.0.0.1:{{ elasticsearch_http_port }}/_cluster/health"
+    method: GET
+    return_content: yes
+  register: cluster_health
+  retries: 5
+  delay: 5
+
+- name: Display cluster health status
+  debug:
+    msg: "Elasticsearch cluster status: {{ cluster_health.json.status }} ({{ cluster_health.json.number_of_nodes }} nodes)"
+
+- name: Fail if cluster status is red
+  fail:
+    msg: "Elasticsearch cluster is in RED status - critical issue detected"
+  when: cluster_health.json.status == "red"
+
+- name: Warn if cluster status is yellow
+  debug:
+    msg: "WARNING: Elasticsearch cluster is in YELLOW status - some replicas may be missing (normal for single-node setup)"
+  when: cluster_health.json.status == "yellow"
+
+- name: Validate Elasticsearch is listening on local port
+  wait_for:
+    port: "{{ elasticsearch_http_port }}"
+    host: "127.0.0.1"
+    timeout: 30
+
+- name: Validate external network binding (if configured)
+  wait_for:
+    port: "{{ elasticsearch_http_port }}"
+    host: "{{ elasticsearch_bind_ip }}"
+    timeout: 10
+  when: elasticsearch_bind_ip != "127.0.0.1"
+
+- name: Validate Kibana health (if installed)
+  block:
+    - name: Wait for Kibana to be ready (local check)
+      uri:
+        url: "http://127.0.0.1:{{ kibana_server_port }}/api/status"
+        method: GET
+        status_code: 200
+      register: kibana_ready
+      until: kibana_ready.status == 200
+      retries: "{{ kibana_health_check_retries }}"
+      delay: "{{ kibana_health_check_delay }}"
+      failed_when: false
+
+    - name: Display Kibana startup status
+      debug:
+        msg: "Kibana is {{ 'ready' if kibana_ready.status == 200 else 'not responding' }} (checked locally)"
+
+    - name: Fail if Kibana is not ready
+      fail:
+        msg: "Kibana failed to start properly after {{ kibana_health_check_retries * kibana_health_check_delay }} seconds"
+      when: kibana_ready.status != 200
+
+    - name: Validate Kibana is listening on local port
+      wait_for:
+        port: "{{ kibana_server_port }}"
+        host: "127.0.0.1"
+        timeout: 30
+
+  when: install_kibana | default(true)
+
+- name: Display deployment success message
+  debug:
+    msg: |
+      🎉 Elasticsearch deployment completed successfully!
+      
+      Elasticsearch (local): http://127.0.0.1:{{ elasticsearch_http_port }}/
+      Elasticsearch (network): http://{{ elasticsearch_bind_ip }}:{{ elasticsearch_http_port }}/
+      Cluster Health: http://127.0.0.1:{{ elasticsearch_http_port }}/_cluster/health
+      {% if install_kibana | default(true) %}
+      Kibana (local): http://127.0.0.1:{{ kibana_server_port }}/
+      Kibana (network): http://{{ elasticsearch_bind_ip }}:{{ kibana_server_port }}/
+      {% endif %}
+      
+      Note: Network access depends on firewall configuration 

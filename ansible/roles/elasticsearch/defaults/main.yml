@@ -2,10 +2,63 @@
 # Elasticsearch configuration
 elasticsearch_bind_ip: "{{ ansible_default_ipv4.address }}"
 
+# Version control
+elasticsearch_version: "8.x"
+
+# Network configuration
+elasticsearch_localhost_bind: "127.0.0.1"
+elasticsearch_http_port: 9200
+elasticsearch_transport_port: 9300
+
+# Cluster configuration
+elasticsearch_cluster_name: "{{ ansible_hostname }}-cluster"
+elasticsearch_discovery_type: "single-node"
+
+# Security
+elasticsearch_security_enabled: false
+
+# Security hardening configuration
+elasticsearch_security_hardening: true  # Set to false to skip security hardening
+elasticsearch_user_shell: "/bin/false"  # Shell for elasticsearch user (security)
+elasticsearch_secure_permissions: true  # Use restrictive file permissions
+elasticsearch_clean_ssl_keystore: true  # Auto-clean SSL keystore when security disabled
+kibana_user_shell: "/bin/false"  # Shell for kibana user (security)
+
+# Error handling configuration (minimal for provisioning)
+elasticsearch_apt_retries: 3  # Retry count for APT operations
+elasticsearch_apt_retry_delay: 10  # Delay between APT retries (seconds)
+elasticsearch_network_retries: 3  # Retry count for network operations
+
+# Performance configuration (production defaults - set to false to disable)
+elasticsearch_configure_performance: true  # Auto-configure heap size (50% RAM, max 32GB)
+elasticsearch_configure_max_map_count: true  # Usually needed for Elasticsearch
+elasticsearch_max_map_count: "262144"
+elasticsearch_configure_file_limits: true  # Usually needed for production
+elasticsearch_max_open_files: "65536"
+elasticsearch_disable_swap: false  # Set to true to disable swap
+
+# Logging configuration (observability-ready)
+elasticsearch_configure_logging: true  # Set to false to skip custom logging config
+elasticsearch_log_level: "INFO"  # DEBUG, INFO, WARN, ERROR
+elasticsearch_log_format: "json"  # json (for Loki) or pattern (traditional)
+elasticsearch_enable_slow_log: true  # Enable slow query logging
+elasticsearch_slow_log_threshold: "1s"  # Log queries slower than this
+kibana_log_level: "info"  # fatal, error, warn, info, debug, trace
+
+# Health check configuration (auto-scaled based on system resources)
+elasticsearch_health_check_enabled: true  # Set to false to skip health checks
+elasticsearch_health_check_retries: "{{ 30 if ansible_memtotal_mb >= 2048 else 45 }}"  # More retries for smaller systems
+elasticsearch_health_check_delay: "{{ 10 if ansible_memtotal_mb >= 2048 else 15 }}"  # Longer delays for smaller systems
+kibana_health_check_retries: "{{ 20 if ansible_memtotal_mb >= 2048 else 30 }}"  # More retries for smaller systems  
+kibana_health_check_delay: "{{ 15 if ansible_memtotal_mb >= 2048 else 20 }}"  # Longer delays for smaller systems
+
 # Kibana configuration
 install_kibana: true
+kibana_server_host: "0.0.0.0"
+kibana_server_port: 5601
+kibana_elasticsearch_url: "http://localhost:{{ elasticsearch_http_port }}"
 
 # Repository configuration
 elastic_repo_key_url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
-elastic_repo_url: "deb [signed-by=/etc/apt/keyrings/elasticsearch-archive-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main"
+elastic_repo_url: "deb [signed-by=/etc/apt/keyrings/elasticsearch-archive-keyring.gpg] https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main"
 

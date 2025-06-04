@@ -1,0 +1,17 @@
+---
+# Pure Elasticsearch installation - no configuration
+- name: Install Elasticsearch
+  apt:
+    name: elasticsearch
+    state: present
+  environment:
+    ES_SKIP_SET_KERNEL_PARAMETERS: "true"
+  retries: "{{ elasticsearch_apt_retries }}"
+  delay: "{{ elasticsearch_apt_retry_delay }}"
+
+- name: Prevent Elasticsearch autoconfiguration on first start
+  lineinfile:
+    path: /etc/default/elasticsearch
+    regexp: '^ES_SKIP_SET_KERNEL_PARAMETERS='
+    line: 'ES_SKIP_SET_KERNEL_PARAMETERS=true'
+    create: yes 

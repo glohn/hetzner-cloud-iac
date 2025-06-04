@@ -4,3 +4,13 @@
 * implement observability
 * implement backup
 
+Template-basierte Konfiguration statt lineinfile
+Idempotenz und Wartbarkeit
+Variablen und Flexibilität
+Performance-Optimierungen
+Health Checks und Validierung
+Logging und Monitoring
+Sicherheitsverbesserungen
+Error Handling und Robustheit
+Strukturverbesserung
+Molecule Testing

@@ -1,0 +1,6 @@
+---
+# Redis Package Installation
+- name: Install Redis
+  apt:
+    name: redis
+    state: present 

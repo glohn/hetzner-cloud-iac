@@ -1,0 +1,11 @@
+---
+# Elasticsearch core configuration via template
+- name: Configure Elasticsearch (complete configuration via template)
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: '0640'
+    backup: yes
+  notify: restart elasticsearch 
