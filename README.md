@@ -102,6 +102,76 @@ This project provides Infrastructure as Code (IaC) templates for provisioning an
    
    > **Note**: Ansible configuration is automatically triggered by Terraform during the VM deployment phase.
 
+## Bootstrap Process
+
+**Important**: The first deployment requires a special bootstrap process due to the S3 backend configuration.
+
+### Prerequisites for Bootstrap
+
+Before starting the bootstrap process, ensure the S3 backend configuration is properly set:
+
+1. **Update bucket names in all `providers.tf` files**:
+   - `00-tfstate/providers.tf`: Set correct bucket name and S3 endpoint
+   - `01-tf-base/providers.tf`: Set correct bucket name and S3 endpoint  
+   - `02-tf-vm/providers.tf`: Set correct bucket name and S3 endpoint
+
+2. **Configure AWS profile** (optional but recommended):
+   ```bash
+   # Create ~/.aws/credentials with your Hetzner S3 credentials
+   [hetzner-s3-tfstate]
+   aws_access_key_id = your_s3_access_key
+   aws_secret_access_key = your_s3_secret_key
+   ```
+
+### Initial Setup (First Run)
+
+1. **Prepare the state management backend**
+   ```bash
+   cd 00-tfstate
+   
+   # Edit providers.tf: Comment out the S3 backend and uncomment local backend
+   # Change from:
+   #   backend "s3" { ... }
+   # To:
+   #   backend "local" {
+   #     path = "terraform.tfstate"
+   #   }
+   
+   terraform init
+   terraform apply
+   ```
+
+2. **Migrate to S3 backend**
+   ```bash
+   # After successful S3 bucket creation, edit providers.tf again:
+   # Comment out local backend and uncomment S3 backend
+   
+   terraform init --migrate-state
+   
+   # Verify migration worked
+   terraform plan  # Should show no changes
+   ```
+
+3. **Continue with infrastructure deployment**
+   ```bash
+   # Now proceed with base infrastructure
+   cd ../01-tf-base
+   terraform init && terraform apply
+   
+   # Deploy VMs
+   cd ../02-tf-vm  
+   terraform init && terraform apply
+   ```
+
+### Subsequent Runs
+
+After the initial bootstrap, all subsequent runs use the S3 backend automatically:
+```bash
+cd 00-tfstate && terraform init && terraform apply
+cd ../01-tf-base && terraform init && terraform apply  
+cd ../02-tf-vm && terraform init && terraform apply
+```
+
 ## Configuration
 
 ### Terraform Variables
