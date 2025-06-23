@@ -2,18 +2,18 @@
 
 ## Overview
 
-This project provides Infrastructure as Code (IaC) templates for provisioning and managing infrastructure on Hetzner Cloud using Terraform and Ansible. It includes modules for common infrastructure components like databases, message queues, caching, and networking.
+This project provides Infrastructure as Code (IaC) templates to provision and manage infrastructure on Hetzner Cloud using **Terraform** and **Ansible**. It includes modules for services like databases, message queues, caching layers, and networking.
 
 ## Features
 
-- **Terraform Modules**: Reusable infrastructure components
-- **Ansible Playbooks**: Configuration management and service deployment
-- **Multi-Service Support**: Redis, RabbitMQ, MySQL (Percona), Elasticsearch, NFS
-- **Network Security**: Firewall rules and VPC configuration
-- **SSL/TLS**: Automated certificate management
-- **State Management**: Terraform state handling with S3 backend
+- **Terraform Modules**: Reusable infrastructure components  
+- **Ansible Playbooks**: Configuration management and service deployment  
+- **Multi-Service Support**: Redis, RabbitMQ, MySQL (Percona), Elasticsearch, NFS  
+- **Network Security**: Firewall rules and VPC configuration  
+- **SSL/TLS**: Automated certificate management via Hetzner DNS  
+- **State Management**: Terraform state handling with S3-compatible backend  
 
-## Architecture
+## Project Structure
 
 ```
 ├── 00-tfstate/           # Terraform state management
@@ -24,7 +24,7 @@ This project provides Infrastructure as Code (IaC) templates for provisioning an
 └── scripts/              # Helper scripts
 ```
 
-## Prerequisites
+## Prerequisites and Setup
 
 1. **Hetzner Cloud Projects**
    
@@ -192,7 +192,7 @@ cd ../02-tf-vm && terraform init && terraform apply
 - `user_keys`: SSH public keys for server access
 - `allowed_ssh_ips`: IP ranges allowed for SSH access
 
-### Service Configuration
+### Services
 
 The project supports deployment of:
 - **MySQL (Percona 8.0)**: Database server with automated backups
@@ -203,11 +203,11 @@ The project supports deployment of:
 
 ## Security
 
-- All services are deployed within a private VPC
+- All services are deployed in a private network
 - Firewall rules restrict access to necessary ports only
 - SSH access is limited to specified IP ranges
 - SSL/TLS certificates are automatically managed
-- Database credentials are securely generated
+- Database credentials are user-defined, excluded from version control, but stored in Terraform state
 
 ## Contributing
 
