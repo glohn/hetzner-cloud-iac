@@ -40,7 +40,7 @@ This project provides Infrastructure as Code (IaC) templates to provision and ma
    - Generate an API token with read/write permissions
    - Deploy all VMs, networks, and services here
    
-   > **Security Rationale**: S3 credentials in Hetzner Cloud grant access to the entire project. By separating state storage from infrastructure, we ensure that deployed services cannot access Terraform state files, which may contain sensitive information.
+   **Security Rationale**: S3 credentials in Hetzner Cloud grant access to the entire project. By separating state storage from infrastructure, we ensure that deployed services cannot access Terraform state files, which may contain sensitive information.
 
 2. **Required Tools**
    - [Terraform](https://www.terraform.io/) >= 1.0
