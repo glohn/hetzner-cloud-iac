@@ -7,7 +7,7 @@
 - [ ] Configure VMs to use NFS for shared storage
 - [ ] Migrate cloud-init configuration in 02-tf-vm to Ansible-based provisioning
 - [ ] Implement observability stack (Promtail, Grafana, Loki) - existing code untested
-- [ ] Implement automated backup solution (rsync or borgbackup)
+- [ ] Implement automated backup solution (rsync or borgbackup) - exisiting code untested
 
 ## Ansible Role Improvements
 
