@@ -1,0 +1,88 @@
+---
+# Configure Loki
+- name: Deploy Loki configuration
+  template:
+    src: loki.yml.j2
+    dest: "{{ loki_config_dir }}/loki.yml"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  notify: restart loki
+
+# Configure Promtail
+- name: Deploy Promtail configuration
+  template:
+    src: promtail.yml.j2
+    dest: "{{ promtail_config_dir }}/promtail.yml"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  notify: restart promtail
+
+# Configure Grafana
+- name: Deploy Grafana configuration
+  template:
+    src: grafana.ini.j2
+    dest: "{{ grafana_config_dir }}/grafana.ini"
+    owner: root
+    group: "{{ grafana_user }}"
+    mode: '0640'
+    backup: yes
+  notify: restart grafana
+
+- name: Deploy Grafana datasources configuration
+  template:
+    src: grafana-datasources.yml.j2
+    dest: "{{ grafana_config_dir }}/provisioning/datasources/loki.yml"
+    owner: root
+    group: "{{ grafana_user }}"
+    mode: '0640'
+  notify: restart grafana
+
+- name: Create Grafana provisioning directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: "{{ grafana_user }}"
+    mode: '0755'
+  loop:
+    - "{{ grafana_config_dir }}/provisioning"
+    - "{{ grafana_config_dir }}/provisioning/datasources"
+    - "{{ grafana_config_dir }}/provisioning/dashboards"
+
+- name: Set proper ownership for Grafana directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ grafana_user }}"
+    group: "{{ grafana_user }}"
+    mode: '0755'
+    recurse: yes
+  loop:
+    - "{{ grafana_data_dir }}"
+    - "{{ grafana_log_dir }}"
+    - "{{ grafana_plugins_dir }}"
+
+- name: Create Loki data subdirectories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: loki
+    group: loki
+    mode: '0755'
+  loop:
+    - "{{ loki_data_dir }}/chunks"
+    - "{{ loki_data_dir }}/rules"
+    - "{{ loki_data_dir }}/boltdb-shipper-active"
+    - "{{ loki_data_dir }}/boltdb-shipper-cache"
+
+- name: Create Promtail positions directory
+  file:
+    path: "{{ promtail_positions_file | dirname }}"
+    state: directory
+    owner: promtail
+    group: promtail
+    mode: '0755' 

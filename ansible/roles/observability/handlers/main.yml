@@ -1,0 +1,34 @@
+---
+# Handlers for observability services
+
+- name: restart loki
+  systemd:
+    name: loki
+    state: restarted
+    daemon_reload: yes
+  listen: "restart loki"
+
+- name: restart promtail
+  systemd:
+    name: promtail
+    state: restarted
+    daemon_reload: yes
+  listen: "restart promtail"
+
+- name: restart grafana
+  systemd:
+    name: grafana-server
+    state: restarted
+    daemon_reload: yes
+  listen: "restart grafana"
+
+- name: reload observability services
+  systemd:
+    name: "{{ item }}"
+    state: reloaded
+    daemon_reload: yes
+  loop:
+    - loki
+    - promtail
+    - grafana-server
+  listen: "reload observability services" 

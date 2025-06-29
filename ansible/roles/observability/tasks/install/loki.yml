@@ -1,0 +1,45 @@
+---
+# Install observability stack packages
+- name: Install Loki, Promtail, and Grafana
+  apt:
+    name: "{{ observability_packages }}"
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  register: observability_install_result
+  
+- name: Create system users for services
+  user:
+    name: "{{ item.user }}"
+    system: yes
+    shell: "{{ item.shell }}"
+    home: "{{ item.home }}"
+    create_home: no
+  loop:
+    - { user: "{{ loki_user }}", shell: "{{ loki_user_shell }}", home: "{{ loki_data_dir }}" }
+    - { user: "{{ promtail_user }}", shell: "{{ promtail_user_shell }}", home: "/var/lib/promtail" }
+  when: observability_security_hardening | default(true)
+
+- name: Create data directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ loki_user }}"
+    group: "{{ loki_user }}"
+    mode: '0755'
+  loop:
+    - "{{ loki_data_dir }}"
+    - "{{ loki_data_dir }}/chunks"
+    - "{{ loki_data_dir }}/index"
+    - "/var/lib/promtail"
+
+- name: Create configuration directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ loki_config_dir }}"
+    - "{{ promtail_config_dir }}" 

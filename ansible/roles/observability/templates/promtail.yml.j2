@@ -1,0 +1,54 @@
+# Promtail Configuration
+# {{ ansible_managed }}
+
+server:
+  http_listen_port: {{ promtail_port }}
+  grpc_listen_port: 0
+  log_level: {{ promtail_log_level }}
+
+positions:
+  filename: {{ promtail_positions_file }}
+
+clients:
+  - url: http://{{ loki_bind_ip }}:{{ loki_port }}/loki/api/v1/push
+
+scrape_configs:
+{% for log_path in promtail_log_paths %}
+  # {{ log_path | basename }}
+  - job_name: {{ log_path | basename | replace('.', '_') | replace('*', 'wildcard') }}
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: {{ log_path | dirname | basename }}
+          __path__: {{ log_path }}
+          host: {{ ansible_hostname }}
+          service: {{ log_path | basename | replace('*.log', 'services') }}
+    pipeline_stages:
+      - match:
+          selector: '{job="auth"}'
+          stages:
+            - regex:
+                expression: '^(?P<timestamp>\S+\s+\S+\s+\S+)\s+(?P<hostname>\S+)\s+(?P<service>\S+):\s+(?P<message>.*)'
+            - labels:
+                service:
+      - match:
+          selector: '{job="nginx"} |= "access"'
+          stages:
+            - regex:
+                expression: '^(?P<remote_addr>\S+)\s+-\s+(?P<remote_user>\S+)\s+\[(?P<time_local>[^\]]+)\]\s+"(?P<request>[^"]+)"\s+(?P<status>\d+)\s+(?P<body_bytes_sent>\d+)\s+"(?P<http_referer>[^"]+)"\s+"(?P<http_user_agent>[^"]+)"'
+            - labels:
+                status:
+                method:
+{% endfor %}
+
+  # System journal logs (if systemd is available)
+  - job_name: journal
+    journal:
+      max_age: 12h
+      labels:
+        job: systemd-journal
+        host: {{ ansible_hostname }}
+    relabel_configs:
+      - source_labels: ['__journal__systemd_unit']
+        target_label: 'unit' 

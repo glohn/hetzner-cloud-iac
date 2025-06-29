@@ -1,0 +1,15 @@
+# Logrotate configuration for Loki
+# {{ ansible_managed }}
+
+/var/log/loki/*.log {
+    daily
+    missingok
+    rotate {{ observability_log_retention_days }}
+    compress
+    delaycompress
+    notifempty
+    create 644 {{ loki_user }} {{ loki_user }}
+    postrotate
+        /bin/systemctl reload loki >/dev/null 2>&1 || true
+    endscript
+} 

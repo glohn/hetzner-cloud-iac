@@ -1,0 +1,26 @@
+---
+# Phase 1: Repository Setup
+- name: Setup Grafana repository
+  include_tasks: install/repository.yml
+
+# Phase 2: Service Installation  
+- name: Install Loki and Promtail
+  include_tasks: install/loki.yml
+
+# Phase 3: Core Configuration (creates config files)
+- name: Configure Loki and Promtail
+  include_tasks: config/loki.yml
+
+# Phase 4: Security Hardening (needs config files to exist)
+- name: Apply security hardening
+  include_tasks: security/hardening.yml
+  when: observability_security_hardening | default(true)
+
+# Phase 5: Service Startup
+- name: Start services
+  include_tasks: services/management.yml
+
+# Phase 6: Health Validation
+- name: Validate service health
+  include_tasks: monitoring/health.yml
+  when: observability_health_check_enabled | default(true) 

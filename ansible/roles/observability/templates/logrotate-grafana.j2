@@ -1,0 +1,15 @@
+# Logrotate configuration for Grafana
+# {{ ansible_managed }}
+
+{{ grafana_log_dir }}/*.log {
+    daily
+    missingok
+    rotate {{ observability_log_retention_days }}
+    compress
+    delaycompress
+    notifempty
+    create 644 {{ grafana_user }} {{ grafana_user }}
+    postrotate
+        /bin/systemctl reload grafana-server >/dev/null 2>&1 || true
+    endscript
+} 

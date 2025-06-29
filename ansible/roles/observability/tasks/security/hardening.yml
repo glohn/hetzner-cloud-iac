@@ -1,0 +1,65 @@
+---
+# Security hardening for observability services
+
+- name: Create dedicated service users
+  user:
+    name: "{{ item.user }}"
+    system: yes
+    shell: "{{ item.shell }}"
+    home: "{{ item.home }}"
+    create_home: no
+    state: present
+  loop:
+    - { user: "{{ loki_user }}", shell: "{{ loki_user_shell }}", home: "{{ loki_data_dir }}" }
+    - { user: "{{ promtail_user }}", shell: "{{ promtail_user_shell }}", home: "/var/lib/promtail" }
+  when: observability_security_hardening | default(true)
+
+- name: Set secure file permissions for configuration files
+  file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ loki_config_dir }}/loki.yml", owner: "root", group: "root", mode: "0644" }
+    - { path: "{{ promtail_config_dir }}/promtail.yml", owner: "root", group: "root", mode: "0644" }
+    - { path: "{{ grafana_config_dir }}/grafana.ini", owner: "root", group: "{{ grafana_user }}", mode: "0640" }
+  when: observability_secure_permissions | default(true)
+
+- name: Set secure directory permissions for data directories
+  file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    state: directory
+  loop:
+    - { path: "{{ loki_data_dir }}", owner: "{{ loki_user }}", group: "{{ loki_user }}", mode: "0750" }
+    - { path: "/var/lib/promtail", owner: "{{ promtail_user }}", group: "{{ promtail_user }}", mode: "0750" }
+    - { path: "{{ grafana_data_dir }}", owner: "{{ grafana_user }}", group: "{{ grafana_user }}", mode: "0750" }
+    - { path: "{{ grafana_log_dir }}", owner: "{{ grafana_user }}", group: "{{ grafana_user }}", mode: "0750" }
+  when: observability_secure_permissions | default(true)
+
+- name: Configure log rotation for observability services
+  template:
+    src: "logrotate-{{ item }}.j2"
+    dest: "/etc/logrotate.d/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - loki
+    - promtail
+    - grafana
+  when: observability_configure_logging | default(true)
+
+- name: Disable unused network services (security hardening)
+  systemd:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  loop:
+    - avahi-daemon
+    - bluetooth
+  failed_when: false
+  when: observability_security_hardening | default(true) 

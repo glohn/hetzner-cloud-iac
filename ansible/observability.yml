@@ -1,0 +1,11 @@
+---
+- name: Deploy Observability Stack
+  hosts: all
+  become: true
+  vars:
+    observability_bind_ip: "{{ observability_bind_ip }}"
+
+  roles:
+    - base
+    - user-management
+    - observability 

@@ -1,0 +1,83 @@
+---
+# Health checks for observability services
+
+- name: Wait for Loki to be ready
+  uri:
+    url: "http://{{ loki_bind_ip }}:{{ loki_port }}/ready"
+    method: GET
+    status_code: 200
+  register: loki_health_check
+  retries: "{{ loki_health_check_retries }}"
+  delay: "{{ loki_health_check_delay }}"
+  until: loki_health_check.status == 200
+  when: observability_health_check_enabled | default(true)
+
+- name: Check Loki metrics endpoint
+  uri:
+    url: "http://{{ loki_bind_ip }}:{{ loki_port }}/metrics"
+    method: GET
+    status_code: 200
+  register: loki_metrics_check
+  when: observability_health_check_enabled | default(true)
+
+- name: Wait for Promtail to be ready
+  uri:
+    url: "http://{{ loki_bind_ip }}:{{ promtail_port }}/ready"
+    method: GET
+    status_code: 200
+  register: promtail_health_check
+  retries: "{{ promtail_health_check_retries }}"
+  delay: "{{ promtail_health_check_delay }}"
+  until: promtail_health_check.status == 200
+  when: observability_health_check_enabled | default(true)
+
+- name: Check Promtail metrics endpoint
+  uri:
+    url: "http://{{ loki_bind_ip }}:{{ promtail_port }}/metrics"
+    method: GET
+    status_code: 200
+  register: promtail_metrics_check
+  when: observability_health_check_enabled | default(true)
+
+- name: Wait for Grafana to be ready
+  uri:
+    url: "http://{{ loki_bind_ip }}:{{ grafana_port }}/api/health"
+    method: GET
+    status_code: 200
+  register: grafana_health_check
+  retries: "{{ grafana_health_check_retries }}"
+  delay: "{{ grafana_health_check_delay }}"
+  until: grafana_health_check.status == 200
+  when: observability_health_check_enabled | default(true)
+
+- name: Verify Grafana database connectivity
+  uri:
+    url: "http://{{ loki_bind_ip }}:{{ grafana_port }}/api/admin/stats"
+    method: GET
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: yes
+    status_code: 200
+  register: grafana_db_check
+  when: observability_health_check_enabled | default(true)
+
+- name: Check if Loki datasource is configured in Grafana
+  uri:
+    url: "http://{{ loki_bind_ip }}:{{ grafana_port }}/api/datasources/name/Loki"
+    method: GET
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: yes
+    status_code: 200
+  register: grafana_datasource_check
+  when: observability_health_check_enabled | default(true)
+
+- name: Display health check results
+  debug:
+    msg: |
+      Loki Health: {{ 'OK' if loki_health_check.status == 200 else 'FAILED' }}
+      Promtail Health: {{ 'OK' if promtail_health_check.status == 200 else 'FAILED' }}
+      Grafana Health: {{ 'OK' if grafana_health_check.status == 200 else 'FAILED' }}
+      Grafana Database: {{ 'OK' if grafana_db_check.status == 200 else 'FAILED' }}
+      Loki Datasource: {{ 'OK' if grafana_datasource_check.status == 200 else 'FAILED' }}
+  when: observability_health_check_enabled | default(true) 

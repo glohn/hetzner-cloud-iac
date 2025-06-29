@@ -1,0 +1,76 @@
+---
+# Observability Configuration Defaults
+
+# Network configuration
+loki_bind_ip: "{{ ansible_default_ipv4.address }}"
+loki_port: 3100
+loki_grpc_port: 9096
+promtail_port: 9080
+grafana_port: 3000
+
+# Repository configuration
+grafana_gpg_key_url: "https://apt.grafana.com/gpg.key"
+grafana_apt_keyring_dir: "/etc/apt/keyrings"
+grafana_repo_url: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
+
+# Package configuration
+observability_packages:
+  - loki
+  - promtail
+  - grafana
+
+# Service configuration
+observability_services:
+  - loki
+  - promtail
+  - grafana
+
+# Loki configuration
+loki_config_dir: "/etc/loki"
+loki_data_dir: "/var/lib/loki"
+loki_log_level: "info"
+loki_retention_period: "168h"  # 7 days
+
+# Promtail configuration  
+promtail_config_dir: "/etc/loki"
+promtail_positions_file: "/var/lib/promtail/positions.yaml"
+promtail_log_level: "info"
+
+# Grafana configuration
+grafana_config_dir: "/etc/grafana"
+grafana_data_dir: "/var/lib/grafana"
+grafana_log_dir: "/var/log/grafana"
+grafana_plugins_dir: "/var/lib/grafana/plugins"
+grafana_admin_user: "admin"
+grafana_admin_password: "admin"  # Should be changed in production
+grafana_domain: "localhost"
+grafana_root_url: "http://{{ grafana_domain }}:{{ grafana_port }}"
+
+# Log paths to monitor
+promtail_log_paths:
+  - "/var/log/syslog"
+  - "/var/log/auth.log"
+  - "/var/log/nginx/*.log"
+  - "/var/log/apache2/*.log"
+
+# Logging configuration
+observability_configure_logging: true
+observability_log_retention_days: 7
+
+# Security hardening configuration
+observability_security_hardening: true
+loki_user: "loki"
+loki_user_shell: "/bin/false"
+promtail_user: "promtail"
+promtail_user_shell: "/bin/false"
+grafana_user: "grafana"
+observability_secure_permissions: true
+
+# Health check configuration
+observability_health_check_enabled: true
+loki_health_check_retries: 15
+loki_health_check_delay: 5
+promtail_health_check_retries: 10
+promtail_health_check_delay: 5
+grafana_health_check_retries: 15
+grafana_health_check_delay: 5 

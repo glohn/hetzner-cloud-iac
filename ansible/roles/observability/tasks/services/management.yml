@@ -1,0 +1,22 @@
+---
+# Start and enable observability services
+- name: Start and enable observability services
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  loop: "{{ observability_services }}"
+  register: service_start_result
+
+- name: Wait for services to be ready
+  wait_for:
+    port: "{{ item.port }}"
+    host: "{{ loki_bind_ip }}"
+    delay: 5
+    timeout: 60
+  loop:
+    - { service: "loki", port: "{{ loki_port }}" }
+    - { service: "promtail", port: "{{ promtail_port }}" }
+    - { service: "grafana-server", port: "{{ grafana_port }}" }
+  when: observability_health_check_enabled | default(true) 

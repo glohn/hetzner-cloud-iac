@@ -1,0 +1,38 @@
+---
+- name: Install prerequisite packages for Grafana repository
+  apt:
+    name:
+      - apt-transport-https
+      - software-properties-common
+      - wget
+      - gpg
+    state: present
+    update_cache: yes
+
+- name: Create apt keyrings directory
+  file:
+    path: "{{ grafana_apt_keyring_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Download Grafana GPG key (ASCII format)
+  get_url:
+    url: "{{ grafana_gpg_key_url }}"
+    dest: /tmp/grafana.gpg
+    mode: '0644'
+
+- name: Convert Grafana GPG key to binary and move to keyrings dir
+  shell: |
+    gpg --dearmor -o {{ grafana_apt_keyring_dir }}/grafana.gpg /tmp/grafana.gpg
+  args:
+    creates: "{{ grafana_apt_keyring_dir }}/grafana.gpg"
+
+- name: Add Grafana APT repository with signed-by
+  apt_repository:
+    repo: "{{ grafana_repo_url }}"
+    filename: grafana
+    state: present
+
+- name: Update APT cache
+  apt:
+    update_cache: yes 

@@ -1,0 +1,15 @@
+# Logrotate configuration for Promtail
+# {{ ansible_managed }}
+
+/var/log/promtail/*.log {
+    daily
+    missingok
+    rotate {{ observability_log_retention_days }}
+    compress
+    delaycompress
+    notifempty
+    create 644 {{ promtail_user }} {{ promtail_user }}
+    postrotate
+        /bin/systemctl reload promtail >/dev/null 2>&1 || true
+    endscript
+} 

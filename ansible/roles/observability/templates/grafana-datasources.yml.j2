@@ -1,0 +1,23 @@
+# Grafana Datasources Configuration
+# {{ ansible_managed }}
+
+apiVersion: 1
+
+datasources:
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://{{ loki_bind_ip }}:{{ loki_port }}
+    uid: loki-uid
+    version: 1
+    isDefault: true
+    editable: false
+    jsonData:
+      timeout: 60
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: loki-uid
+          matcherRegex: "traceID=([a-f0-9]+)"
+          name: TraceID
+          url: "$${__value.raw}"
+    secureJsonData: {} 
