@@ -61,6 +61,45 @@ resource "hcloud_firewall" "fw-nfs" {
   }
 }
 
+resource "hcloud_firewall" "fw-observability" {
+  name = "${var.project}-fw-observability"
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = var.loki_port
+    source_ips = var.subnet_cidrs
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = var.loki_grpc_port
+    source_ips = var.subnet_cidrs
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = var.promtail_port
+    source_ips = var.subnet_cidrs
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = var.grafana_port
+    source_ips = var.allowed_ssh_ips
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = var.prometheus_port
+    source_ips = var.subnet_cidrs
+  }
+}
+
 resource "hcloud_firewall" "fw-rabbitmq" {
   name = "${var.project}-fw-rabbitmq"
 

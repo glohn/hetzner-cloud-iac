@@ -36,6 +36,12 @@ variable "server_type_nfs" {
   default     = null
 }
 
+variable "server_type_observability" {
+  description = "Hetzner server type for Observability stack, e.g. cx22"
+  type        = string
+  default     = null
+}
+
 variable "server_type_rabbitmq" {
   description = "Hetzner server type to deploy, e.g. cx22"
   type        = string

@@ -12,6 +12,7 @@ volume_size_nfs           = 10
 volume_size_rds           = 10
 server_type_elasticsearch = null
 server_type_nfs           = null
+server_type_observability = null
 server_type_rabbitmq      = null
 server_type_rds           = null
 server_type_redis         = null

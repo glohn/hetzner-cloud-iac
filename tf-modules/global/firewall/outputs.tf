@@ -18,6 +18,11 @@ output "firewall_id_nfs" {
   value       = hcloud_firewall.fw-nfs.id
 }
 
+output "firewall_id_observability" {
+  description = "The ID of the Observability stack firewall"
+  value       = hcloud_firewall.fw-observability.id
+}
+
 output "firewall_id_rabbitmq" {
   description = "The ID of the RabbitMQ firewall"
   value       = hcloud_firewall.fw-rabbitmq.id

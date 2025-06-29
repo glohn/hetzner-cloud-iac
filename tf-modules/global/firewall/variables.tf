@@ -67,3 +67,33 @@ variable "redis_port" {
   default     = "6379"
 }
 
+variable "loki_port" {
+  description = "Port for loki service"
+  type        = string
+  default     = "3100"
+}
+
+variable "loki_grpc_port" {
+  description = "Port for loki grpc service"
+  type        = string
+  default     = "9096"
+}
+
+variable "promtail_port" {
+  description = "Port for promtail service"
+  type        = string
+  default     = "9080"
+}
+
+variable "grafana_port" {
+  description = "Port for grafana dashboard"
+  type        = string
+  default     = "3000"
+}
+
+variable "prometheus_port" {
+  description = "Port for prometheus service"
+  type        = string
+  default     = "9090"
+}
+

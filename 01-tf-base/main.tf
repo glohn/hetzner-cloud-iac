@@ -110,6 +110,20 @@ module "elasticsearch" {
   default_image             = var.default_image
 }
 
+module "observability" {
+  source                    = "../tf-modules/services/observability"
+  count                     = var.server_type_observability != null ? 1 : 0
+  project                   = local.project
+  location                  = local.location
+  user_keys                 = var.user_keys
+  ansible_public_key_id     = module.ssh.ansible_public_key
+  ansible_private_key       = module.ssh.ansible_private_key
+  network_id                = module.vpc.network_id
+  firewall_id_observability = module.firewall.firewall_id_observability
+  server_type_observability = var.server_type_observability
+  default_image             = var.default_image
+}
+
 module "rabbitmq" {
   source                  = "../tf-modules/services/rabbitmq"
   count                   = var.server_type_rabbitmq != null ? 1 : 0
