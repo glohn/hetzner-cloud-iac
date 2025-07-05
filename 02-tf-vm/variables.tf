@@ -3,11 +3,6 @@ variable "load_balancer_type" {
   type        = string
 }
 
-variable "allowed_ssh_ips" {
-  description = "IPs which are allowed to ssh into instance"
-  type        = list(string)
-}
-
 variable "server_type_bastion" {
   description = "Hetzner server type to deploy, e.g. cx22"
   type        = string

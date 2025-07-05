@@ -53,15 +53,82 @@ This project provides Infrastructure as Code (IaC) templates to provision and ma
    
    **Option A - Full Domain**:
    - Transfer your domain's DNS management to Hetzner Cloud DNS
+   - Go to [Hetzner DNS Console](https://dns.hetzner.com/)
+   - Add your domain as a DNS zone
+   - Update nameservers at your domain registrar to point to Hetzner's nameservers
    
    **Option B - Subdomain (Recommended)**:
-   - Create a subdomain (e.g., `hcloud.yourdomain.com`)
-   - At your current DNS provider, set NS records for the subdomain to point to Hetzner's nameservers
-   - Configure Hetzner DNS to manage only this subdomain
+   - Go to [Hetzner DNS Console](https://dns.hetzner.com/)
+   - Add your main domain as a DNS zone (e.g., `example.com`)
+   - At your current DNS provider, set NS records for the subdomain `hcloud.yourdomain.com` to point to Hetzner's nameservers
+   - This delegates only the `hcloud.*` subdomain to Hetzner while keeping the main domain elsewhere
    
-   **Required**:
-   - Hetzner DNS API token for automated certificate validation
-   - Domain/subdomain configured in Hetzner Cloud DNS
+   **Required Steps**:
+   1. Create a DNS zone in [Hetzner DNS Console](https://dns.hetzner.com/) (e.g., `example.com`)
+   2. Configure NS records at your DNS provider: `hcloud.example.com` → Hetzner nameservers
+   3. Set `domainname` in `01-tf-base/terraform.tfvars` to match the DNS zone name (e.g., `example.com`)
+   4. Generate Hetzner DNS API token for automated certificate validation
+   
+   **Example**:
+   - DNS Zone in Hetzner: `example.com`
+   - NS delegation at DNS provider: `hcloud.example.com` → Hetzner nameservers
+   - Terraform creates: `myproject.hcloud.example.com`, `admin.myproject.hcloud.example.com`
+   - You only delegate `hcloud.*` subdomain to Hetzner, main domain stays with your provider
+
+## Required API Tokens and Credentials
+
+Before you can deploy the infrastructure, you need to obtain **4 different secrets**. Here's how to get them:
+
+### 1. Hetzner Cloud API Token (`hcloud_token`)
+
+**Purpose**: Manages your infrastructure (VMs, networks, load balancers, etc.)
+
+**How to get it**:
+1. Go to [Hetzner Cloud Console](https://console.hetzner-cloud.de/)
+2. Create or select your **Infrastructure Project** (Project 2)
+3. Navigate to **"Security"** → **"API Tokens"**
+4. Click **"Generate API Token"**
+5. Name: e.g. your project name
+6. Permissions: **Read & Write**
+7. **Important**: Copy the token immediately - it's only shown once!
+
+### 2. Hetzner DNS API Token (`hcloud_dns_token`)
+
+**Purpose**: Manages DNS records for automated SSL certificate validation
+
+**How to get it**:
+1. Go to [Hetzner DNS Console](https://dns.hetzner.com/)
+2. Navigate to **"API Tokens"**
+3. Click **"Create new token"**
+4. Name: e.g. your project name with `-dns` suffix
+5. **Important**: Copy the token immediately - it's only shown once!
+
+### 3. S3 Access Key (`s3_access_key`) & Secret Key (`s3_secret_key`)
+
+**Purpose**: Terraform state storage in S3-compatible object storage
+
+**How to get it**:
+1. Go to [Hetzner Cloud Console](https://console.hetzner-cloud.de/)
+2. Create or select your **State Storage Project** (Project 1)
+3. Navigate to **"Security"** → **"S3 Credentials"**
+4. Click **"Generate S3 Credentials"**
+5. Name: e.g. your project name with `-tfstate` suffix
+6. Copy both **Access Key ID** and **Secret Access Key**
+7. **Important**: The secret key is only shown once during creation!
+
+**Note**: The S3 bucket will be created automatically by Terraform during deployment.
+
+### Summary Checklist
+
+Before proceeding, ensure you have:
+- [ ] **Project 1 (State Storage)**: Created + S3 credentials generated
+- [ ] **Project 2 (Infrastructure)**: Created + API token generated
+- [ ] **DNS Zone**: Created in Hetzner DNS Console + nameservers configured
+- [ ] **DNS Token**: Generated in Hetzner DNS Console
+- [ ] **Domain name**: Set in `01-tf-base/terraform.tfvars` to match DNS zone name
+- [ ] All **4 secrets** copied to `00-tfstate/secrets.auto.tfvars` (2 API tokens + 2 S3 credentials)
+
+**Security Note**: Never commit the `secrets.auto.tfvars` file to version control. It's already in `.gitignore`.
 
 ## Quick Start
 
@@ -71,18 +138,23 @@ This project provides Infrastructure as Code (IaC) templates to provision and ma
    cd hetzner-cloud-iac
    ```
 
-2. **Configure variables**
+2. **Configure secrets and variables**
    ```bash
-   # IMPORTANT: Copy and configure secrets file with your actual credentials
+   # STEP 1: Create secrets file with your 4 API tokens/credentials
    cp 00-tfstate/secrets.auto.tfvars.example 00-tfstate/secrets.auto.tfvars
    
-   # Edit secrets.auto.tfvars with your actual values:
-   # - API tokens (Hetzner Cloud & DNS)
-   # - S3 credentials 
-   # - Service passwords
+   # STEP 2: Edit secrets.auto.tfvars with your actual values:
+   # - hcloud_token: Your Hetzner Cloud API token  
+   # - hcloud_dns_token: Your Hetzner DNS API token
+   # - s3_access_key: Your S3 Access Key ID
+   # - s3_secret_key: Your S3 Secret Access Key
+   # - Service passwords: Change to your own secure passwords
    
-   # Edit existing terraform.tfvars files in each directory with your values
-   # (these files already exist with example/placeholder values)
+   # STEP 3: Configure basic settings in terraform.tfvars files
+   # Edit these files with your domain, SSH keys, etc.:
+   # - 00-tfstate/terraform.tfvars (project name, S3 domain)
+   # - 01-tf-base/terraform.tfvars (domain, SSH keys, IP ranges)
+   # - 02-tf-vm/terraform.tfvars (VM configuration)
    ```
 
 3. **Initialize and apply infrastructure**
@@ -187,10 +259,27 @@ cd ../02-tf-vm && terraform init && terraform apply
 - `rabbitmq_admin_password`: RabbitMQ admin password
 - `rds_root_password` / `rds_app_password`: MySQL passwords
 
-**Key variables in `terraform.tfvars`:**
-- `domainname`: Your domain name
+**Variables in `terraform.tfvars` files:**
+
+**In `00-tfstate/terraform.tfvars`:**
+- `project`: Your project name (e.g., "my-company")
+- `location`: Hetzner location (e.g., "nbg1", "fsn1", "hel1")
+- `minio_domain`: S3 endpoint domain (e.g., "nbg1.your-objectstorage.com")
+
+**In `01-tf-base/terraform.tfvars`:**
+- `cidr_block`: CIDR block for private network (e.g., "10.0.0.0/16")
+- `domainname`: Your domain name - must match the DNS zone name in Hetzner DNS
 - `user_keys`: SSH public keys for server access
 - `allowed_ssh_ips`: IP ranges allowed for SSH access
+- `default_image`: OS image for VMs (e.g., "debian-12")
+- `volume_size_nfs`: NFS volume size in GB (e.g., 10)
+- `volume_size_rds`: RDS volume size in GB (e.g., 10)
+- `server_type_*`: Set to `null` to disable services you don't need
+
+**In `02-tf-vm/terraform.tfvars`:**
+- `load_balancer_type`: Load balancer size (e.g., "lb11")
+- `server_type_*`: VM types for different services (set to `null` to disable)
+- `number_instances_sw_web`: Number of Shopware web server instances
 
 ### Services
 
@@ -225,5 +314,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**About this project**: This repository represents my learning journey with Hetzner Cloud from April-June 2025. It was developed entirely in my private time to explore Hetzner Cloud's capabilities and is provided as-is for educational and reference purposes.
+**About this project**: This repository represents my learning journey with Hetzner Cloud from April-July 2025. It was developed entirely in my private time to explore Hetzner Cloud's capabilities and is provided as-is for educational and reference purposes.
 
