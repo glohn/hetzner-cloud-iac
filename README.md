@@ -57,7 +57,6 @@ This project provides Infrastructure as Code (IaC) templates to provision and ma
    - Transfer your domain's DNS management to Hetzner Cloud DNS
    - Go to [Hetzner DNS Console](https://dns.hetzner.com/)
    - Add your domain as a DNS zone
-   - Update nameservers at your domain registrar to point to Hetzner's nameservers
    
    **Option B - Subdomain (Recommended)**:
    - Go to [Hetzner DNS Console](https://dns.hetzner.com/)
@@ -169,20 +168,13 @@ Before proceeding, ensure you have:
    # Generate provider configurations from templates
    ./scripts/setup-providers.sh
 
-   # Start with state management
-   cd 00-tfstate
-   terraform init && terraform apply
-
-   # Deploy base infrastructure
-   cd ../01-tf-base
-   terraform init && terraform apply
-
-   # Deploy virtual machines (includes automatic Ansible configuration)
-   cd ../02-tf-vm
-   terraform init && terraform apply
+   # Deploy infrastructure step by step
+   cd 00-tfstate && terraform init && terraform apply
+   cd ../01-tf-base && terraform init && terraform apply
+   cd ../02-tf-vm && terraform init && terraform apply
    ```
    
-   > **Note**: Ansible configuration is automatically triggered by Terraform during the VM deployment phase.
+   > **Note**: For detailed explanations of each step, template system, and subsequent runs, see the [Bootstrap Process](#bootstrap-process) section below.
 
 ## Bootstrap Process
 
@@ -192,13 +184,28 @@ Before proceeding, ensure you have:
 
 Before starting the bootstrap process, ensure the configuration is properly set:
 
-1. **Generate provider configuration files**:
-   ```bash
-   # Generate providers.tf from templates with your bucket configuration
-   ./scripts/setup-providers.sh
-   ```
-   
-   This script reads your `bucket_prefix`, `project`, `location`, and `minio_domain` from `00-tfstate/terraform.auto.tfvars` and generates all `providers.tf` files accordingly.
+**Generate provider configuration files**:
+```bash
+# Generate providers.tf from templates with your bucket configuration
+./scripts/setup-providers.sh
+```
+
+This script reads your `bucket_prefix`, `project`, `location`, and `minio_domain` from `00-tfstate/terraform.auto.tfvars` and generates all `providers.tf` files accordingly.
+
+**How the template system works:**
+- All `providers.tf.template` files contain placeholder variables (e.g., `BUCKET_PREFIX-PROJECT-tfstate`, `LOCATION.MINIO_DOMAIN`)
+- The script replaces these placeholders with your actual configuration values
+- Generated `providers.tf` files are automatically ignored by Git to keep the repository generic
+- This separates your personal configuration from the generic repository code
+
+**File Structure Example:**
+```
+00-tfstate/
+├── providers.tf.template    # Generic template (in repository)
+├── providers.tf             # Generated file (gitignored)
+├── terraform.tfvars         # Generic example values (in repository)
+└── terraform.auto.tfvars    # Your specific values (gitignored)
+```
 
 ### Deployment Process
 
@@ -208,15 +215,19 @@ With the template system, deployment is straightforward:
 # 1. Generate provider configurations (run after any config changes)
 ./scripts/setup-providers.sh
 
-# 2. Deploy state management backend (creates S3 bucket)
+# 2. Deploy S3 bucket and configure shared secrets (initial local state)
 cd 00-tfstate
 terraform init && terraform apply
 
-# 3. Deploy base infrastructure
+# 3. Migrate state from local to S3 bucket
+# Edit providers.tf: uncomment S3 backend, comment local backend
+terraform init -migrate-state
+
+# 4. Deploy base infrastructure
 cd ../01-tf-base
 terraform init && terraform apply
 
-# 4. Deploy virtual machines (includes automatic Ansible configuration)
+# 5. Deploy virtual machines (includes automatic Ansible configuration)
 cd ../02-tf-vm
 terraform init && terraform apply
 ```
@@ -230,7 +241,10 @@ cd ../01-tf-base && terraform init && terraform apply
 cd ../02-tf-vm && terraform init && terraform apply
 ```
 
-**Note**: Re-run `./scripts/setup-providers.sh` only when you change configuration variables in `00-tfstate/terraform.auto.tfvars`.
+**Note**: Always run `./scripts/setup-providers.sh` after:
+- Cloning the repository
+- Changing any variables in `00-tfstate/terraform.auto.tfvars`
+- Pulling updates that modify `.template` files
 
 ## Configuration
 
@@ -306,44 +320,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **About this project**: This repository represents my learning journey with Hetzner Cloud from April-July 2025. It was developed entirely in my private time to explore Hetzner Cloud's capabilities and is provided as-is for educational and reference purposes.
-
-## Provider Configuration Template System
-
-The repository uses a template-based approach for provider configuration to separate generic (repository) from specific (local) bucket names.
-
-### How it works:
-
-1. **Templates**: All `providers.tf.template` files contain placeholder variables (e.g., `BUCKET_PREFIX-PROJECT-tfstate`, `LOCATION.MINIO_DOMAIN`)
-2. **Generated Files**: The `providers.tf` files are automatically generated from templates using your personal configuration
-3. **Git Ignore**: The generated `providers.tf` files are ignored by Git to keep the repository generic
-
-### Setup Process:
-
-After cloning the repository, run:
-
-```bash
-./scripts/setup-providers.sh
-```
-
-This script:
-- Reads your `bucket_prefix`, `project`, `location`, and `minio_domain` values from `00-tfstate/terraform.auto.tfvars`
-- Generates all `providers.tf` files from their `.template` counterparts
-- Replaces placeholder variables with your actual configuration
-
-### File Structure:
-
-```
-00-tfstate/
-├── providers.tf.template    # Generic template (in repository)
-├── providers.tf             # Generated file (gitignored)
-├── terraform.tfvars         # Generic example values (in repository)
-└── terraform.auto.tfvars    # Your specific values (gitignored)
-```
-
-
-
-**Note**: Always run `./scripts/setup-providers.sh` after:
-- Cloning the repository
-- Changing any variables in `00-tfstate/terraform.auto.tfvars`
-- Pulling updates that modify `.template` files
 
