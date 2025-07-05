@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.10"
+  required_version = ">= 1.10, < 1.11.2"
 
   required_providers {
     hcloud = {
@@ -17,7 +17,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket   = "yourname-hetzner-lab-tfstate"
+    bucket   = "glohn-hetzner-lab-tfstate"
     key      = "vm.tfstate"
     region   = "main"
     endpoint = "https://nbg1.your-objectstorage.com"
@@ -35,7 +35,7 @@ terraform {
 data "terraform_remote_state" "tfstate-tfstate" {
   backend = "s3"
   config = {
-    bucket = "yourname-hetzner-lab-tfstate"
+    bucket = "glohn-hetzner-lab-tfstate"
     key    = "tfstate.tfstate"
     region = "main"
     endpoints = {
@@ -55,7 +55,7 @@ data "terraform_remote_state" "tfstate-tfstate" {
 data "terraform_remote_state" "tfstate-base" {
   backend = "s3"
   config = {
-    bucket = "yourname-hetzner-lab-tfstate"
+    bucket = "glohn-hetzner-lab-tfstate"
     key    = "base.tfstate"
     region = "main"
     endpoints = {

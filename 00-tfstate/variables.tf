@@ -13,6 +13,11 @@ variable "project" {
   type        = string
 }
 
+variable "bucket_prefix" {
+  description = "Prefix for the S3 bucket name (e.g., your name or organization)"
+  type        = string
+}
+
 variable "location" {
   description = "Hetzner location, e.g. nbg1, fsn1 or hel1"
   type        = string

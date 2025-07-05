@@ -12,6 +12,7 @@ crash.*.log
 
 # Exclude secrets-specific .tfvars files
 secrets.auto.tfvars
+*.auto.tfvars
 *.secrets.tfvars
 *.secrets.auto.tfvars
 
@@ -34,3 +35,6 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore generated providers.tf files (generated from templates)
+**/providers.tf

@@ -6,12 +6,12 @@ This project provides Infrastructure as Code (IaC) templates to provision and ma
 
 ## Features
 
-- **Terraform Modules**: Reusable infrastructure components  
-- **Ansible Playbooks**: Configuration management and service deployment  
-- **Multi-Service Support**: Redis, RabbitMQ, MySQL (Percona), Elasticsearch, NFS  
-- **Network Security**: Firewall rules and VPC configuration  
-- **SSL/TLS**: Automated certificate management via Hetzner DNS  
-- **State Management**: Terraform state handling with S3-compatible backend  
+- **Terraform Modules**: Reusable infrastructure components 
+- **Ansible Playbooks**: Configuration management and service deployment 
+- **Multi-Service Support**: Redis, RabbitMQ, MySQL (Percona), Elasticsearch, NFS 
+- **Network Security**: Firewall rules and VPC configuration 
+- **SSL/TLS**: Automated certificate management via Hetzner DNS 
+- **State Management**: Terraform state handling with S3-compatible backend 
 
 ## Project Structure
 
@@ -43,9 +43,11 @@ This project provides Infrastructure as Code (IaC) templates to provision and ma
    **Security Rationale**: S3 credentials in Hetzner Cloud grant access to the entire project. By separating state storage from infrastructure, we ensure that deployed services cannot access Terraform state files, which may contain sensitive information.
 
 2. **Required Tools**
-   - [Terraform](https://www.terraform.io/) >= 1.0
+   - [Terraform](https://www.terraform.io/) >= 1.10, < 1.11.2 (**Recommended: 1.10.x**)
    - [Ansible](https://www.ansible.com/) >= 2.9
    - SSH client for server access
+   
+   **⚠️ Important**: Terraform versions 1.11.2 and later have known issues with S3-compatible backends (including Hetzner Object Storage). Use Terraform 1.10.x for reliable operation with this setup.
 
 3. **DNS Configuration**
    
@@ -125,8 +127,8 @@ Before proceeding, ensure you have:
 - [ ] **Project 2 (Infrastructure)**: Created + API token generated
 - [ ] **DNS Zone**: Created in Hetzner DNS Console + nameservers configured
 - [ ] **DNS Token**: Generated in Hetzner DNS Console
-- [ ] **Domain name**: Set in `01-tf-base/terraform.tfvars` to match DNS zone name
 - [ ] All **4 secrets** copied to `00-tfstate/secrets.auto.tfvars` (2 API tokens + 2 S3 credentials)
+- [ ] **Configuration files**: Created and customized `.auto.tfvars` files in all 3 directories
 
 **Security Note**: Never commit the `secrets.auto.tfvars` file to version control. It's already in `.gitignore`.
 
@@ -150,15 +152,23 @@ Before proceeding, ensure you have:
    # - s3_secret_key: Your S3 Secret Access Key
    # - Service passwords: Change to your own secure passwords
    
-   # STEP 3: Configure basic settings in terraform.tfvars files
-   # Edit these files with your domain, SSH keys, etc.:
-   # - 00-tfstate/terraform.tfvars (project name, S3 domain)
-   # - 01-tf-base/terraform.tfvars (domain, SSH keys, IP ranges)
-   # - 02-tf-vm/terraform.tfvars (VM configuration)
+   # STEP 3: Create local configuration files with your real values
+   cp 00-tfstate/terraform.tfvars 00-tfstate/terraform.auto.tfvars
+   cp 01-tf-base/terraform.tfvars 01-tf-base/terraform.auto.tfvars
+   cp 02-tf-vm/terraform.tfvars 02-tf-vm/terraform.auto.tfvars
+   
+   # Then edit these files with your domain, SSH keys, etc.:
+   # - 00-tfstate/terraform.auto.tfvars (project name, S3 domain)
+   # - 01-tf-base/terraform.auto.tfvars (domain, SSH keys, IP ranges)
+   # - 02-tf-vm/terraform.auto.tfvars (VM configuration)
+   # (The .auto.tfvars files are automatically loaded by Terraform)
    ```
 
 3. **Initialize and apply infrastructure**
    ```bash
+   # Generate provider configurations from templates
+   ./scripts/setup-providers.sh
+
    # Start with state management
    cd 00-tfstate
    terraform init && terraform apply
@@ -176,73 +186,51 @@ Before proceeding, ensure you have:
 
 ## Bootstrap Process
 
-**Important**: The first deployment requires a special bootstrap process due to the S3 backend configuration.
+**Important**: The first deployment requires generating provider configuration files from templates.
 
 ### Prerequisites for Bootstrap
 
-Before starting the bootstrap process, ensure the S3 backend configuration is properly set:
+Before starting the bootstrap process, ensure the configuration is properly set:
 
-1. **Update bucket names in all `providers.tf` files**:
-   - `00-tfstate/providers.tf`: Set correct bucket name and S3 endpoint
-   - `01-tf-base/providers.tf`: Set correct bucket name and S3 endpoint  
-   - `02-tf-vm/providers.tf`: Set correct bucket name and S3 endpoint
-
-2. **Configure AWS profile** (optional but recommended):
+1. **Generate provider configuration files**:
    ```bash
-   # Create ~/.aws/credentials with your Hetzner S3 credentials
-   [hetzner-s3-tfstate]
-   aws_access_key_id = your_s3_access_key
-   aws_secret_access_key = your_s3_secret_key
+   # Generate providers.tf from templates with your bucket configuration
+   ./scripts/setup-providers.sh
    ```
+   
+   This script reads your `bucket_prefix`, `project`, `location`, and `minio_domain` from `00-tfstate/terraform.auto.tfvars` and generates all `providers.tf` files accordingly.
 
-### Initial Setup (First Run)
+### Deployment Process
 
-1. **Prepare the state management backend**
-   ```bash
-   cd 00-tfstate
-   
-   # Edit providers.tf: Comment out the S3 backend and uncomment local backend
-   # Change from:
-   #   backend "s3" { ... }
-   # To:
-   #   backend "local" {
-   #     path = "terraform.tfstate"
-   #   }
-   
-   terraform init
-   terraform apply
-   ```
+With the template system, deployment is straightforward:
 
-2. **Migrate to S3 backend**
-   ```bash
-   # After successful S3 bucket creation, edit providers.tf again:
-   # Comment out local backend and uncomment S3 backend
-   
-   terraform init --migrate-state
-   
-   # Verify migration worked
-   terraform plan  # Should show no changes
-   ```
+```bash
+# 1. Generate provider configurations (run after any config changes)
+./scripts/setup-providers.sh
 
-3. **Continue with infrastructure deployment**
-   ```bash
-   # Now proceed with base infrastructure
-   cd ../01-tf-base
-   terraform init && terraform apply
-   
-   # Deploy VMs
-   cd ../02-tf-vm  
-   terraform init && terraform apply
-   ```
+# 2. Deploy state management backend (creates S3 bucket)
+cd 00-tfstate
+terraform init && terraform apply
+
+# 3. Deploy base infrastructure
+cd ../01-tf-base
+terraform init && terraform apply
+
+# 4. Deploy virtual machines (includes automatic Ansible configuration)
+cd ../02-tf-vm
+terraform init && terraform apply
+```
 
 ### Subsequent Runs
 
-After the initial bootstrap, all subsequent runs use the S3 backend automatically:
+After the initial deployment, all subsequent runs use the S3 backend automatically:
 ```bash
 cd 00-tfstate && terraform init && terraform apply
 cd ../01-tf-base && terraform init && terraform apply  
 cd ../02-tf-vm && terraform init && terraform apply
 ```
+
+**Note**: Re-run `./scripts/setup-providers.sh` only when you change configuration variables in `00-tfstate/terraform.auto.tfvars`.
 
 ## Configuration
 
@@ -259,14 +247,17 @@ cd ../02-tf-vm && terraform init && terraform apply
 - `rabbitmq_admin_password`: RabbitMQ admin password
 - `rds_root_password` / `rds_app_password`: MySQL passwords
 
-**Variables in `terraform.tfvars` files:**
+**Variables to configure in `terraform.auto.tfvars` files:**
 
-**In `00-tfstate/terraform.tfvars`:**
+**Note**: The repository contains example values in `terraform.tfvars` files. Copy these to `terraform.auto.tfvars` and customize with your real values. The `.auto.tfvars` files are automatically loaded by Terraform and excluded from version control.
+
+**In `00-tfstate/terraform.auto.tfvars`:**
+- `bucket_prefix`: Your personal prefix for S3 bucket names (e.g., "yourname", "company")
 - `project`: Your project name (e.g., "my-company")
 - `location`: Hetzner location (e.g., "nbg1", "fsn1", "hel1")
-- `minio_domain`: S3 endpoint domain (e.g., "nbg1.your-objectstorage.com")
+- `minio_domain`: S3 endpoint domain (e.g., "your-objectstorage.com")
 
-**In `01-tf-base/terraform.tfvars`:**
+**In `01-tf-base/terraform.auto.tfvars`:**
 - `cidr_block`: CIDR block for private network (e.g., "10.0.0.0/16")
 - `domainname`: Your domain name - must match the DNS zone name in Hetzner DNS
 - `user_keys`: SSH public keys for server access
@@ -276,7 +267,7 @@ cd ../02-tf-vm && terraform init && terraform apply
 - `volume_size_rds`: RDS volume size in GB (e.g., 10)
 - `server_type_*`: Set to `null` to disable services you don't need
 
-**In `02-tf-vm/terraform.tfvars`:**
+**In `02-tf-vm/terraform.auto.tfvars`:**
 - `load_balancer_type`: Load balancer size (e.g., "lb11")
 - `server_type_*`: VM types for different services (set to `null` to disable)
 - `number_instances_sw_web`: Number of Shopware web server instances
@@ -315,4 +306,44 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **About this project**: This repository represents my learning journey with Hetzner Cloud from April-July 2025. It was developed entirely in my private time to explore Hetzner Cloud's capabilities and is provided as-is for educational and reference purposes.
+
+## Provider Configuration Template System
+
+The repository uses a template-based approach for provider configuration to separate generic (repository) from specific (local) bucket names.
+
+### How it works:
+
+1. **Templates**: All `providers.tf.template` files contain placeholder variables (e.g., `BUCKET_PREFIX-PROJECT-tfstate`, `LOCATION.MINIO_DOMAIN`)
+2. **Generated Files**: The `providers.tf` files are automatically generated from templates using your personal configuration
+3. **Git Ignore**: The generated `providers.tf` files are ignored by Git to keep the repository generic
+
+### Setup Process:
+
+After cloning the repository, run:
+
+```bash
+./scripts/setup-providers.sh
+```
+
+This script:
+- Reads your `bucket_prefix`, `project`, `location`, and `minio_domain` values from `00-tfstate/terraform.auto.tfvars`
+- Generates all `providers.tf` files from their `.template` counterparts
+- Replaces placeholder variables with your actual configuration
+
+### File Structure:
+
+```
+00-tfstate/
+├── providers.tf.template    # Generic template (in repository)
+├── providers.tf             # Generated file (gitignored)
+├── terraform.tfvars         # Generic example values (in repository)
+└── terraform.auto.tfvars    # Your specific values (gitignored)
+```
+
+
+
+**Note**: Always run `./scripts/setup-providers.sh` after:
+- Cloning the repository
+- Changing any variables in `00-tfstate/terraform.auto.tfvars`
+- Pulling updates that modify `.template` files
 

@@ -11,11 +11,11 @@ terraform {
   # Uncomment and run 'terraform init' to migrate the local state to the S3 bucket.
   # This should be done only after the code has been run successfully once.
   #backend "s3" {
-  #  bucket = "glohn-hetzner-lab-tfstate"
+  #  bucket = "BUCKET_PREFIX-PROJECT-tfstate"
   #  key    = "tfstate.tfstate"
   #  region = "main"
   #  endpoints = {
-  #    s3 = "https://nbg1.your-objectstorage.com"
+  #    s3 = "https://LOCATION.MINIO_DOMAIN"
   #  }
 
   #  profile                     = "hetzner-s3-tfstate"
