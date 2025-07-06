@@ -7,6 +7,24 @@ This file enforces critical deployment rules for Cursor AI.
 
 ## MANDATORY RULES - NEVER IGNORE
 
+### Proactive Resource Discovery & UX
+- ALWAYS search for existing resources BEFORE asking user (SSH keys, config files, etc.)
+- ASK QUESTIONS ONE AT A TIME, never overwhelm with multiple questions
+- SHOW INITIATIVE: Check filesystem, probe for existing setup, discover what's available
+- ONLY ask user for information you cannot discover yourself
+- Example: `ls ~/.ssh/*.pub` before asking "Do you have SSH keys?"
+- Example: Check if files exist before asking "Are these configured?"
+- SINGLE QUESTION FLOW: Ask → Wait for answer → Next question
+- NEVER give "summary questions" - always individual, sequential questions
+
+### Smart Question Patterns
+- PREFER Yes/No questions over open-ended questions
+- PREFER confirmation questions: "Should I use X?" instead of "Which X do you want?"
+- SUGGEST the best option and ask for confirmation
+- BAD: "Which SSH Key do you want to use?"
+- GOOD: "Should I use your most modern SSH Key (id_ed25519.pub)?"
+- ALWAYS provide escape hatch: "Yes" or "No (then tell me which other one)"
+
 ### File Handling
 - ALWAYS use edit_file tool to open configuration files for user editing
 - NEVER use command-line editors (nano, vim, etc.) for configuration files
@@ -36,7 +54,7 @@ This file enforces critical deployment rules for Cursor AI.
 - FOLLOW exact sequence: tfstate → tf-base → tf-vm
 - NEVER skip phases or run out of order
 - ALWAYS run scripts/setup-providers.sh before first deployment
-- ASK about existing SSH keys instead of generating new ones
+- SEARCH for existing SSH keys BEFORE asking user (ls ~/.ssh/*.pub)
 
 ### Initial Setup Detection
 - CHECK: Do .auto.tfvars files exist? (If not = initial setup)
@@ -62,12 +80,13 @@ This file enforces critical deployment rules for Cursor AI.
 
 ## REQUIRED PATTERN
 ```
-1. Ask for real values (credentials, domain, SSH keys)
-2. Copy template: cp source dest  
-3. IMMEDIATELY open for editing: edit_file dest
-4. Wait for user to edit and save
-5. Proceed only after user confirmation
-6. Follow sequence: tfstate → tf-base → tf-vm
+1. SEARCH for existing resources first (SSH keys, configs, etc.)
+2. Ask for real values ONE AT A TIME (credentials, domain, etc.)
+3. Copy template: cp source dest  
+4. IMMEDIATELY open for editing: edit_file dest
+5. Wait for user to edit and save
+6. Proceed only after user confirmation
+7. Follow sequence: tfstate → tf-base → tf-vm
 ```
 
 ## FAIL-SAFE QUESTIONS
@@ -78,4 +97,5 @@ Before any action ask:
 - Am I about to automate sensitive config? → OPEN FILE INSTEAD
 - Did I copy a template? → IMMEDIATELY OPEN WITH edit_file
 - Am I skipping deployment sequence? → STOP
-- Did I ask for real SSH keys? → REQUIRED 
+- Did I search for existing resources first? → REQUIRED
+- Am I asking multiple questions at once? → STOP, ask one at a time 
