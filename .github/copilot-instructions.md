@@ -11,6 +11,15 @@ This is a production-ready Hetzner Cloud Infrastructure-as-Code repository.
 - **ASK** about existing SSH keys instead of generating new ones
 - **WAIT** for user confirmation before creating configuration files
 
+## File Handling Guidelines
+
+- **OPEN files for user editing** instead of making programmatic changes
+- **NEVER use command-line editors** (nano, vim, etc.) when interactive editing is expected
+- **ALWAYS show file contents** when user needs to edit configuration files
+- **LET USER EDIT** sensitive configuration instead of trying to automate it
+- **CREATE .auto.tfvars files** by copying from templates, then open for user editing
+- **PREFER interactive editing** over automated file modifications for credentials
+
 ## Repository Context
 
 - Requires 4 real Hetzner credentials (see README for details)
@@ -32,6 +41,8 @@ This is a production-ready Hetzner Cloud Infrastructure-as-Code repository.
 - Do not skip the provider setup phase (scripts/setup-providers.sh)
 - Do not proceed without verifying all prerequisites are met
 - Do not suggest shortcuts that bypass security measures
+- Do not use command-line editors when interactive editing is expected
+- Do not automate sensitive credential entry
 
 ## Service Enablement Rules
 
