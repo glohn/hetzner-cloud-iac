@@ -1,5 +1,20 @@
 # Hetzner Cloud Infrastructure as Code
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Prerequisites and Setup](#prerequisites-and-setup)
+- [Required API Tokens and Credentials](#required-api-tokens-and-credentials)
+- [Quick Start](#quick-start)
+- [Bootstrap Process](#bootstrap-process)
+- [Configuration](#configuration)
+- [Security](#security)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Overview
 
 This project provides Infrastructure as Code (IaC) templates to provision and manage infrastructure on Hetzner Cloud using **Terraform** and **Ansible**. It includes modules for services like databases, message queues, caching layers, and networking.
