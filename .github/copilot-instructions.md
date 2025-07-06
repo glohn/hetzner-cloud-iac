@@ -21,8 +21,9 @@ This is a production-ready Hetzner Cloud Infrastructure-as-Code repository.
 ## Infrastructure Overview
 
 - **Phase 1 (00-tfstate):** Creates S3 backend for Terraform state storage
-- **Phase 2 (01-tf-base):** Creates VPC, networks, firewalls, and data services
+- **Phase 2 (01-tf-base):** Creates VPC, networks, firewalls
 - **Phase 3 (02-tf-vm):** Creates application VMs (optional)
+- **Phase 4 (Optional):** Enable services one by one after basic infrastructure works
 - **Ansible:** Configures all services after Terraform deployment
 
 ## Common Pitfalls for AI Assistants
@@ -30,5 +31,22 @@ This is a production-ready Hetzner Cloud Infrastructure-as-Code repository.
 - Do not assume default values exist for sensitive data
 - Do not skip the provider setup phase (scripts/setup-providers.sh)
 - Do not proceed without verifying all prerequisites are met
-- Do not suggest shortcuts that bypass security measures 
+- Do not suggest shortcuts that bypass security measures
+
+## Service Enablement Rules
+
+**DETECT initial setup automatically by checking:**
+- No `.auto.tfvars` files exist yet (they need to be copied from templates)
+- No `providers.tf` files exist yet (setup-providers.sh not run)
+- No terraform state files exist yet (never been deployed)
+
+**IF initial setup detected:**
+- Keep ALL server_type_* variables as null (disabled)
+- Focus on base infrastructure only (VPC, DNS, networking)
+- Let user test basic infrastructure before enabling services
+
+**IF infrastructure already exists:**
+- Services can be enabled/disabled as requested by user
+- User has working base infrastructure and knows what they're doing
+- Normal service management applies
 
