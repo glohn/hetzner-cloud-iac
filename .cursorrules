@@ -7,6 +7,12 @@ This file enforces critical deployment rules for Cursor AI.
 
 ## MANDATORY RULES - NEVER IGNORE
 
+### CRITICAL SETUP SEQUENCE - NEVER VIOLATE
+- **NEVER run scripts/setup-providers.sh without .auto.tfvars files existing**
+- **NEVER run terraform commands without real credentials configured**
+- **MANDATORY ORDER: 1) Create .auto.tfvars 2) Configure credentials 3) ONLY THEN scripts/setup-providers.sh**
+- **NEVER ask for credential values - ALWAYS copy template and open with edit_file immediately**
+
 ### Proactive Resource Discovery & UX
 - ALWAYS search for existing resources BEFORE asking user (SSH keys, config files, etc.)
 - ASK QUESTIONS ONE AT A TIME, never overwhelm with multiple questions
