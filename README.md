@@ -220,7 +220,9 @@ cd 00-tfstate
 terraform init && terraform apply
 
 # 3. Migrate state from local to S3 bucket
-# Edit providers.tf: uncomment S3 backend, comment local backend
+# Edit 00-tfstate/providers.tf:
+# - Change: #backend "s3" { → backend "s3" {
+# - Change: backend "local" { → #backend "local" {
 terraform init -migrate-state
 
 # 4. Deploy base infrastructure
