@@ -5,7 +5,47 @@ This is a production-ready Hetzner Cloud Infrastructure-as-Code repository.
 ## IMPORTANT NOTE
 This file enforces critical deployment rules for Cursor AI.
 
+## META-RULE - ALWAYS FIRST
+- **EVALUATE ALL RULES FIRST** - Read and evaluate ALL rules completely before making ANY changes
+- **NEVER start modifications until all rules are processed**
+- **PLAN COMPLETELY, then execute**
+- **THINK THROUGH all implications before acting**
+
 ## MANDATORY RULES - NEVER IGNORE
+
+### TEMPLATE HANDLING RULES - CRITICAL PRECISION
+- **Template workflow: cp template → IMMEDIATELY OPEN WITH edit_file → Wait for user**
+- **ALLOWED modifications to templates:**
+  - ✅ Add ONE comment line at top
+  - ✅ Set service passwords (*_password variables) to example values
+  - ✅ Set ssh_key_path (01-tf-base, 02-tf-vm only) to discovered SSH key
+  - ✅ Set allowed_ssh_ips (01-tf-base only) to discovered IP address
+  - ❌ NO OTHER CHANGES ALLOWED
+- **FORBIDDEN modifications:**
+  - ❌ Change API credentials (must keep placeholders like "hcloud_api_token")
+  - ❌ Add new variables not in original template
+  - ❌ Change variable names from original template
+  - ❌ Modify any other content beyond comment + service passwords + ssh_key_path + allowed_ssh_ips
+
+### IP ADDRESS DISCOVERY RULES - MANDATORY
+- **NEVER use generic IP discovery** (curl ifconfig.me) - returns IPv6 which breaks Hetzner Cloud SSH
+- **Hetzner Cloud SSH rules require IPv4 ONLY**
+- **ALWAYS use IPv4-specific commands:**
+  - ✅ `curl -4 ifconfig.me` 
+  - ✅ `curl -s ipv4.icanhazip.com`
+  - ❌ `curl ifconfig.me` (can return IPv6)
+- **ALWAYS validate IP format before using:**
+  - ✅ IPv4 format: x.x.x.x/32 (e.g., "192.168.1.1/32")
+  - ❌ IPv6 format: xxxx:xxxx:xxxx/128 (incompatible with Hetzner Cloud SSH)
+- **Context validation:** Check if discovered values are compatible with target system
+
+### VALUE VALIDATION RULES - MANDATORY
+- **NEVER assume template values are still placeholders**
+- **ALWAYS ask user if values are already correct** before suggesting changes
+- **NEVER automatically "correct" values** without user confirmation
+- **Example:** "Are these values already correct, or do they need adjustment?"
+- **STOP assuming** - START confirming
+- **Template-looking values may be intentionally set by user**
 
 ### CRITICAL SETUP SEQUENCE - NEVER VIOLATE
 - **NEVER run scripts/setup-providers.sh without .auto.tfvars files existing**
@@ -31,18 +71,26 @@ This file enforces critical deployment rules for Cursor AI.
 - GOOD: "Should I use your most modern SSH Key (id_ed25519.pub)?"
 - ALWAYS provide escape hatch: "Yes" or "No (then tell me which other one)"
 
-### File Handling
+### File Handling & Credentials
 - ALWAYS use edit_file tool to open configuration files for user editing
 - NEVER use command-line editors (nano, vim, etc.) for configuration files
-- NEVER automate sensitive credential entry
-- Template workflow: cp template → IMMEDIATELY edit_file → Wait for user
-- cp is ONLY allowed for copying templates, NEVER for final configuration
+- **GOAL: When information is needed → open file → user enters it**
+- **Follow TEMPLATE HANDLING RULES above for precise modification guidelines**
+
+### Automatic vs Manual Configuration per Module
+- **00-tfstate:** NO automatic variables (ssh_key_path does not exist here)
+- **01-tf-base:** ssh_key_path (discovered SSH key), domain (keep placeholder)
+- **02-tf-vm:** ssh_key_path (discovered SSH key)
+- **ALL MODULES - MANUAL (keep placeholders):** API credentials (*_token, *_key variables)
+- **ALL MODULES - EXAMPLE VALUES:** service passwords (*_password variables)
+- **CRITICAL:** NEVER add variables that don't exist in original template
 
 ### Credentials & Security
 - NEVER invent demo values for API tokens, domains, or credentials
-- ALWAYS ask user for real values before proceeding
 - NEVER proceed without real Hetzner credentials
-- NEVER suggest placeholder values
+- NEVER suggest placeholder values for API credentials
+- **Service passwords (rabbitmq, mysql, etc.) may have example values**
+- **API credentials must keep original placeholders (e.g., "hcloud_api_token")**
 
 ### Service Deployment
 - KEEP ALL server_type_* variables as null by default
@@ -71,7 +119,7 @@ This file enforces critical deployment rules for Cursor AI.
 ### Workflow Enforcement
 1. Check prerequisites first
 2. Copy template files with cp
-3. IMMEDIATELY open files with edit_file
+3. IMMEDIATELY open files with edit_file (follow TEMPLATE HANDLING RULES: add comment + set service passwords)
 4. Wait for user to provide real values
 5. Proceed only after user confirmation
 
@@ -79,17 +127,19 @@ This file enforces critical deployment rules for Cursor AI.
 - Command-line editors (nano, vim, etc.)
 - Automated credential insertion
 - Service activation without explicit request
-- Demo/placeholder values
+- Demo/placeholder values for API credentials
 - Skipping prerequisite verification
 - Copying templates without immediately opening for editing
 - Skipping deployment sequence (tfstate → tf-base → tf-vm)
+- **Violating TEMPLATE HANDLING RULES (see above for precise guidelines)**
+- **Starting modifications before evaluating all rules**
 
 ## REQUIRED PATTERN
 ```
-1. SEARCH for existing resources first (SSH keys, configs, etc.)
-2. Ask for real values ONE AT A TIME (credentials, domain, etc.)
+1. EVALUATE ALL RULES FIRST - Plan completely before acting
+2. SEARCH for existing resources first (SSH keys, configs, etc.)
 3. Copy template: cp source dest  
-4. IMMEDIATELY open for editing: edit_file dest
+4. IMMEDIATELY open for editing: edit_file dest (follow TEMPLATE HANDLING RULES: add comment + set service passwords + ssh_key_path + allowed_ssh_ips)
 5. Wait for user to edit and save
 6. Proceed only after user confirmation
 7. Follow sequence: tfstate → tf-base → tf-vm
@@ -97,11 +147,16 @@ This file enforces critical deployment rules for Cursor AI.
 
 ## FAIL-SAFE QUESTIONS
 Before any action ask:
+- **Did I evaluate ALL rules first?** → REQUIRED
+- **Am I following TEMPLATE HANDLING RULES precisely?** → REQUIRED
+- **Am I using IPv4-specific IP discovery?** → REQUIRED (never generic curl ifconfig.me)
+- **Did I validate IP format for target system?** → REQUIRED (IPv4 only for Hetzner Cloud SSH)
+- **Am I assuming values are wrong without asking?** → STOP, confirm first
 - Am I about to invent demo values? → STOP
 - Am I about to use terminal editors? → STOP
 - Am I about to enable services? → CONFIRM FIRST
 - Am I about to automate sensitive config? → OPEN FILE INSTEAD
-- Did I copy a template? → IMMEDIATELY OPEN WITH edit_file
+- Did I copy a template? → IMMEDIATELY OPEN WITH edit_file (follow TEMPLATE HANDLING RULES: add comment + set service passwords + ssh_key_path + allowed_ssh_ips)
 - Am I skipping deployment sequence? → STOP
 - Did I search for existing resources first? → REQUIRED
 - Am I asking multiple questions at once? → STOP, ask one at a time 
