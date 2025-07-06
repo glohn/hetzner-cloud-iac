@@ -1,0 +1,81 @@
+# Hetzner Cloud Infrastructure - Critical Rules
+
+This is a production-ready Hetzner Cloud Infrastructure-as-Code repository.
+
+## IMPORTANT NOTE
+This file enforces critical deployment rules for Cursor AI.
+
+## MANDATORY RULES - NEVER IGNORE
+
+### File Handling
+- ALWAYS use edit_file tool to open configuration files for user editing
+- NEVER use command-line editors (nano, vim, etc.) for configuration files
+- NEVER automate sensitive credential entry
+- Template workflow: cp template → IMMEDIATELY edit_file → Wait for user
+- cp is ONLY allowed for copying templates, NEVER for final configuration
+
+### Credentials & Security
+- NEVER invent demo values for API tokens, domains, or credentials
+- ALWAYS ask user for real values before proceeding
+- NEVER proceed without real Hetzner credentials
+- NEVER suggest placeholder values
+
+### Service Deployment
+- KEEP ALL server_type_* variables as null by default
+- NEVER enable services without explicit user request
+- Focus on base infrastructure first (VPC, DNS, networking)
+- Services only after base infrastructure is confirmed working
+
+### Prerequisites Verification
+- VERIFY all 4 Hetzner credentials exist before deployment
+- VERIFY domain is managed by Hetzner DNS
+- VERIFY 2 separate Hetzner projects are created
+- STOP if any prerequisite missing
+
+### Deployment Sequence
+- FOLLOW exact sequence: tfstate → tf-base → tf-vm
+- NEVER skip phases or run out of order
+- ALWAYS run scripts/setup-providers.sh before first deployment
+- ASK about existing SSH keys instead of generating new ones
+
+### Initial Setup Detection
+- CHECK: Do .auto.tfvars files exist? (If not = initial setup)
+- CHECK: Do providers.tf files exist? (If not = need setup-providers.sh)
+- CHECK: Do terraform state files exist? (If not = never been deployed)
+- IF initial setup: Keep ALL server_type_* as null
+
+### Workflow Enforcement
+1. Check prerequisites first
+2. Copy template files with cp
+3. IMMEDIATELY open files with edit_file
+4. Wait for user to provide real values
+5. Proceed only after user confirmation
+
+## FORBIDDEN ACTIONS
+- Command-line editors (nano, vim, etc.)
+- Automated credential insertion
+- Service activation without explicit request
+- Demo/placeholder values
+- Skipping prerequisite verification
+- Copying templates without immediately opening for editing
+- Skipping deployment sequence (tfstate → tf-base → tf-vm)
+
+## REQUIRED PATTERN
+```
+1. Ask for real values (credentials, domain, SSH keys)
+2. Copy template: cp source dest  
+3. IMMEDIATELY open for editing: edit_file dest
+4. Wait for user to edit and save
+5. Proceed only after user confirmation
+6. Follow sequence: tfstate → tf-base → tf-vm
+```
+
+## FAIL-SAFE QUESTIONS
+Before any action ask:
+- Am I about to invent demo values? → STOP
+- Am I about to use terminal editors? → STOP
+- Am I about to enable services? → CONFIRM FIRST
+- Am I about to automate sensitive config? → OPEN FILE INSTEAD
+- Did I copy a template? → IMMEDIATELY OPEN WITH edit_file
+- Am I skipping deployment sequence? → STOP
+- Did I ask for real SSH keys? → REQUIRED 

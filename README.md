@@ -323,7 +323,7 @@ The project supports deployment of:
 
 ## AI Assistant Guidelines
 
-If you are an AI assistant working on this project, please read [.github/copilot-instructions.md](.github/copilot-instructions.md) for important repository-specific deployment guidelines and context before making any changes or suggestions.
+If you are an AI assistant working on this project, please read [.cursorrules](.cursorrules) for important repository-specific deployment guidelines and context before making any changes or suggestions.
 
 ## Contributing
 
