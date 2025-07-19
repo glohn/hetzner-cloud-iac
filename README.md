@@ -182,7 +182,11 @@ This project includes an automated Makefile that handles all setup and deploymen
    - Deploys S3 state storage with local backend
    - Switches to S3 backend and migrates state
    - Deploys base infrastructure (VPC, DNS, certificates)
-   - Deploys virtual machines and services
+   - Deploys virtual machines *(if manually configured in terraform.auto.tfvars)*
+
+**Note**: Virtual machines and services are disabled by default. To deploy VMs and services:
+1. Edit `01-tf-base/terraform.auto.tfvars` and set service server types (e.g., `server_type_rds = "cx22"`)
+2. Edit `02-tf-vm/terraform.auto.tfvars` and set server types (e.g., `server_type_sw_web = "cx22"`)
 
 ### Additional Commands
 
