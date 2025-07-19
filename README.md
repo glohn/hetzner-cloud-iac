@@ -138,10 +138,14 @@ Before you can deploy the infrastructure, you need to obtain **4 different secre
 ### Summary Checklist
 
 Before proceeding, ensure you have:
+
+**Required for all deployment methods:**
 - [ ] **Project 1 (State Storage)**: Created + S3 credentials generated
 - [ ] **Project 2 (Infrastructure)**: Created + API token generated
 - [ ] **DNS Zone**: Created in Hetzner DNS Console + nameservers configured
 - [ ] **DNS Token**: Generated in Hetzner DNS Console
+
+**Required for manual deployment only:**
 - [ ] All **4 secrets** copied to `00-tfstate/secrets.auto.tfvars` (2 API tokens + 2 S3 credentials)
 - [ ] **Configuration files**: Created and customized `.auto.tfvars` files in all 3 directories
 
