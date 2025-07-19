@@ -11,7 +11,6 @@
 - [Bootstrap Process](#bootstrap-process)
 - [Configuration](#configuration)
 - [Security](#security)
-- [AI Assistant Guidelines](#ai-assistant-guidelines)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
@@ -37,7 +36,8 @@ This project provides Infrastructure as Code (IaC) templates to provision and ma
 ├── 02-tf-vm/             # Virtual machine provisioning
 ├── tf-modules/           # Reusable Terraform modules
 ├── ansible/              # Configuration management
-└── scripts/              # Helper scripts
+├── scripts/              # Helper scripts
+└── Makefile              # Automated setup and deployment
 ```
 
 ## Prerequisites and Setup
@@ -83,7 +83,7 @@ This project provides Infrastructure as Code (IaC) templates to provision and ma
    **Required Steps**:
    1. Create a DNS zone in [Hetzner DNS Console](https://dns.hetzner.com/) (e.g., `example.com`)
    2. Configure NS records at your DNS provider: `hcloud.example.com` → Hetzner nameservers
-   3. Set `domainname` in `01-tf-base/terraform.tfvars` to match the DNS zone name (e.g., `example.com`)
+   3. Set `domainname` in `01-tf-base/terraform.auto.tfvars` to match the DNS zone name (e.g., `example.com`)
    4. Generate Hetzner DNS API token for automated certificate validation
    
    **Example**:
@@ -149,48 +149,45 @@ Before proceeding, ensure you have:
 
 ## Quick Start
 
-1. **Clone and prepare the repository**
+This project includes an automated Makefile that handles all setup and deployment steps interactively.
+
+### Two-Step Deployment
+
+1. **Clone and setup**
    ```bash
    git clone https://github.com/glohn/hetzner-cloud-iac.git
    cd hetzner-cloud-iac
+   
+   # Interactive setup - collects all credentials and configuration
+   make setup
    ```
+   
+   The setup process will interactively ask you for:
+   - Your 4 API credentials (Hetzner Cloud, DNS, S3 access/secret keys)
+   - Service passwords (RabbitMQ, MySQL)
+   - Domain name and SSH configuration
+   - Project settings (name, location, bucket prefix)
 
-2. **Configure secrets and variables**
+2. **Deploy infrastructure**
    ```bash
-   # STEP 1: Create secrets file with your 4 API tokens/credentials
-   cp 00-tfstate/secrets.auto.tfvars.example 00-tfstate/secrets.auto.tfvars
-   
-   # STEP 2: Edit secrets.auto.tfvars with your actual values:
-   # - hcloud_token: Your Hetzner Cloud API token  
-   # - hcloud_dns_token: Your Hetzner DNS API token
-   # - s3_access_key: Your S3 Access Key ID
-   # - s3_secret_key: Your S3 Secret Access Key
-   # - Service passwords: Change to your own secure passwords
-   
-   # STEP 3: Create local configuration files with your real values
-   cp 00-tfstate/terraform.tfvars 00-tfstate/terraform.auto.tfvars
-   cp 01-tf-base/terraform.tfvars 01-tf-base/terraform.auto.tfvars
-   cp 02-tf-vm/terraform.tfvars 02-tf-vm/terraform.auto.tfvars
-   
-   # Then edit these files with your domain, SSH keys, etc.:
-   # - 00-tfstate/terraform.auto.tfvars (project name, S3 domain)
-   # - 01-tf-base/terraform.auto.tfvars (domain, SSH keys, IP ranges)
-   # - 02-tf-vm/terraform.auto.tfvars (VM configuration)
-   # (The .auto.tfvars files are automatically loaded by Terraform)
-   ```
-
-3. **Initialize and apply infrastructure**
-   ```bash
-   # Generate provider configurations from templates
-   ./scripts/setup-providers.sh
-
-   # Deploy infrastructure step by step
-   cd 00-tfstate && terraform init && terraform apply
-   cd ../01-tf-base && terraform init && terraform apply
-   cd ../02-tf-vm && terraform init && terraform apply
+   # Automated deployment in correct sequence
+   make deploy
    ```
    
-   > **Note**: For detailed explanations of each step, template system, and subsequent runs, see the [Bootstrap Process](#bootstrap-process) section below.
+   This automatically:
+   - Deploys S3 state storage with local backend
+   - Switches to S3 backend and migrates state
+   - Deploys base infrastructure (VPC, DNS, certificates)
+   - Deploys virtual machines and services
+
+### Additional Commands
+
+```bash
+make help    # Show all available commands
+make clean   # Remove all generated configuration files
+```
+
+> **Note**: For manual deployment or troubleshooting, see the [Bootstrap Process](#bootstrap-process) section below.
 
 ## Bootstrap Process
 
@@ -320,10 +317,6 @@ The project supports deployment of:
 - SSH access is limited to specified IP ranges
 - SSL/TLS certificates are automatically managed
 - Database credentials are user-defined, excluded from version control, but stored in Terraform state
-
-## AI Assistant Guidelines
-
-If you are an AI assistant working on this project, please read [.cursorrules](.cursorrules) for important repository-specific deployment guidelines and context before making any changes or suggestions.
 
 ## Contributing
 
